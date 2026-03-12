@@ -3211,7 +3211,7 @@ function submitShipping(e){
   goToStep(2);
 }
 
-function submitPayment(){
+async function submitPayment(){
   if(coPaymentMethod==='stripe'){
     const num=document.getElementById('cardNum')?.value.replace(/\s/g,'');
     const exp=document.getElementById('cardExp')?.value;
@@ -3222,30 +3222,48 @@ function submitPayment(){
     if(!cvv||cvv.length<3){showToast('CVV invalide','⚠️');return;}
     if(!name){showToast('Nom sur la carte requis','⚠️');return;}
   }
-  // Build snapshot BEFORE clearing cart
-  const subtotal = cart.reduce((s,c)=>{const p=PRODUCTS.find(x=>x.id===c.id);return s+(p?p.price*c.qty:0);},0);
-  const discount = currentPromo?(()=>{const pr=PROMO_CODES[currentPromo];return pr.type==='percent'?subtotal*pr.value/100:Math.min(pr.value,subtotal);})():0;
-  const orderNum = 'PV-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  // Build local snapshot for confirmation screen
+  const subtotal    = cart.reduce((s,c)=>{const p=PRODUCTS.find(x=>x.id===c.id);return s+(p?p.price*c.qty:0);},0);
+  const discount    = currentPromo?(()=>{const pr=PROMO_CODES[currentPromo];return pr.type==='percent'?subtotal*pr.value/100:Math.min(pr.value,subtotal);})():0;
   const shippingOpt = SHIPPING_OPTIONS.find(o=>o.id===coShippingMethod);
+  const total       = Math.max(0, subtotal + coShippingCost - discount);
+
   coLastOrder = {
-    num: orderNum,
+    num: 'En cours…',
     date: new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),
     items: cart.map(c=>({...c, product: PRODUCTS.find(p=>p.id===c.id)})).filter(c=>c.product),
-    subtotal,
-    discount,
-    shippingCost: coShippingCost,
-    shippingMethod: shippingOpt,
-    total: Math.max(0, subtotal + coShippingCost - discount),
-    shipping: {...coShippingData},
-    payment: coPaymentMethod,
-    promoCode: currentPromo,
-    estimatedDays: coShippingMethod==='chrono'?1:coShippingMethod==='express'?3:7,
+    subtotal, discount, shippingCost: coShippingCost, shippingMethod: shippingOpt,
+    total, shipping: {...coShippingData}, payment: coPaymentMethod,
+    promoCode: currentPromo, estimatedDays: coShippingMethod==='chrono'?1:coShippingMethod==='express'?3:7,
   };
-  // Save to order history
-  const orders = JSON.parse(localStorage.getItem('pokevault_orders')||'[]');
-  orders.unshift({id:orderNum,date:coLastOrder.date,status:'processing',items:coLastOrder.items.map(i=>({id:i.id})),total:coLastOrder.total});
-  localStorage.setItem('pokevault_orders',JSON.stringify(orders.slice(0,20)));
-  // Clear cart
+
+  // Send order to API if user is connected
+  if(currentUser && authToken){
+    try {
+      const orderData = await api('/orders', {
+        method: 'POST',
+        body: JSON.stringify({
+          items: cart.map(c=>({ productId: String(c.id), quantity: c.qty })),
+          promoCode: currentPromo || '',
+          shipping_address: {
+            firstName: coShippingData.firstName || currentUser.firstName,
+            lastName:  coShippingData.lastName  || currentUser.lastName,
+            street:    coShippingData.address || '',
+            zip:       coShippingData.zip || '',
+            city:      coShippingData.city || '',
+            country:   coShippingData.country || 'France',
+          },
+          payment: { method: coPaymentMethod },
+        }),
+      });
+      coLastOrder.num = orderData.order?.orderRef || coLastOrder.num;
+    } catch(err) {
+      // Non-blocking — order UI still shows, but log the error
+      console.warn('Order API error:', err.message);
+    }
+  }
+
+  // Clear cart and proceed to confirmation
   cart=[];saveCart();updateCartCount();currentPromo=null;selectedPayment='stripe';
   goToStep(3);
 }
@@ -3399,6 +3417,19 @@ function isAdmin(){ return currentUser?.isAdmin === true; }
 let currentUser = JSON.parse(localStorage.getItem('pokevault_user')||'null');
 let orderHistory = JSON.parse(localStorage.getItem('pokevault_orders')||'[]');
 
+// ===== API =====
+const API_URL = 'https://pokevault-backend-production.up.railway.app/api';
+let authToken  = localStorage.getItem('pokevault_token') || null;
+
+async function api(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const res = await fetch(API_URL + path, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `Erreur ${res.status}`);
+  return data;
+}
+
 function initials(u){return ((u.firstName||'?')[0]+(u.lastName||'?')[0]).toUpperCase()}
 
 function renderHeaderAuth(){
@@ -3436,49 +3467,68 @@ function switchAuthTab(tab){
   document.getElementById('formRegister').classList.toggle('active', tab==='register');
 }
 
-function submitLogin(e){
+async function submitLogin(e){
   e.preventDefault();
-  const email = document.getElementById('loginEmail').value.trim();
+  const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   clearAuthErrors();
   if(!email){setAuthError('loginEmailErr','Adresse e-mail requise');return}
-  if(password.length < 6){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
-  // Compte admin hardcodé
-  if(email === ADMIN_EMAIL && password === ADMIN_PASS){
-    loginSuccess({firstName:'Admin',lastName:'PokeVault',email:ADMIN_EMAIL,isAdmin:true});
-    return;
+  if(!password){setAuthError('loginPasswordErr','Mot de passe requis');return}
+  const btn = e.target.querySelector('button[type="submit"]');
+  if(btn){ btn.disabled = true; btn.textContent = 'Connexion…'; }
+  try {
+    const data = await api('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    loginSuccess(data.user, data.token);
+  } catch(err) {
+    const msg = err.message || 'Erreur de connexion';
+    if(msg.toLowerCase().includes('email')||msg.toLowerCase().includes('compte')){
+      setAuthError('loginEmailErr', msg);
+    } else {
+      setAuthError('loginPasswordErr', msg);
+    }
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = 'Se connecter'; }
   }
-  if(email === ADMIN_EMAIL){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
-  const stored = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
-  const found = stored.find(u=>u.email===email);
-  if(!found){setAuthError('loginEmailErr','Aucun compte avec cet email');return}
-  if(found.password !== btoa(password)){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
-  loginSuccess(found);
 }
 
-function submitRegister(e){
+async function submitRegister(e){
   e.preventDefault();
   const firstName = document.getElementById('regFirstName').value.trim();
-  const lastName = document.getElementById('regLastName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const password = document.getElementById('regPassword').value;
-  const confirm = document.getElementById('regConfirm').value;
+  const lastName  = document.getElementById('regLastName').value.trim();
+  const email     = document.getElementById('regEmail').value.trim();
+  const password  = document.getElementById('regPassword').value;
+  const confirm   = document.getElementById('regConfirm').value;
   clearAuthErrors();
   if(password.length < 8){setAuthError('regPasswordErr','8 caractères minimum');return}
   if(password !== confirm){setAuthError('regConfirmErr','Les mots de passe ne correspondent pas');return}
-  if(email === ADMIN_EMAIL){setAuthError('regEmailErr','Cet email est réservé');return}
-  const stored = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
-  if(stored.find(u=>u.email===email)){setAuthError('regEmailErr','Cet email est déjà utilisé');return}
-  const user = {firstName,lastName,email,password:btoa(password),memberSince:new Date().toLocaleDateString('fr-FR',{year:'numeric',month:'long'})};
-  stored.push(user);
-  localStorage.setItem('pokevault_users', JSON.stringify(stored));
-  loginSuccess(user);
-  showToast('Bienvenue sur PokeVault !', '🎉');
+  const btn = e.target.querySelector('button[type="submit"]');
+  if(btn){ btn.disabled = true; btn.textContent = 'Création…'; }
+  try {
+    const data = await api('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ firstName, lastName, email, password }),
+    });
+    loginSuccess(data.user, data.token);
+    showToast('Bienvenue sur PokeVault !', '🎉');
+  } catch(err) {
+    const msg = err.message || 'Erreur inscription';
+    if(msg.toLowerCase().includes('email')||msg.toLowerCase().includes('réservé')||msg.toLowerCase().includes('utilisé')){
+      setAuthError('regEmailErr', msg);
+    } else {
+      setAuthError('regPasswordErr', msg);
+    }
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = 'Créer mon compte'; }
+  }
 }
 
-function loginSuccess(user){
+function loginSuccess(user, token){
   currentUser = user;
   localStorage.setItem('pokevault_user', JSON.stringify(user));
+  if(token){ authToken = token; localStorage.setItem('pokevault_token', token); }
   renderHeaderAuth();
   navigate('catalogue');
   if(user.isAdmin){ showToast('Bienvenue, Admin !', '⚙'); }
@@ -3487,7 +3537,9 @@ function loginSuccess(user){
 
 function logout(){
   currentUser = null;
+  authToken   = null;
   localStorage.removeItem('pokevault_user');
+  localStorage.removeItem('pokevault_token');
   renderHeaderAuth();
   navigate('home');
   showToast('Déconnexion réussie', '👋');
@@ -3564,7 +3616,10 @@ function renderAccount(){
 
 function renderAccountPanel(){
   if(activeAccountTab==='profile') return renderProfile();
-  if(activeAccountTab==='orders') return renderOrders();
+  if(activeAccountTab==='orders'){
+    setTimeout(renderOrders, 0); // populate after DOM injection
+    return `<div id="ordersContainer" style="min-height:120px"><div style="text-align:center;padding:60px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Chargement…</div></div>`;
+  }
   if(activeAccountTab==='wishlist') return renderWishlist();
   if(activeAccountTab==='settings') return renderSettings();
   return '';
@@ -3615,34 +3670,41 @@ function renderProfile(){
 }
 
 function renderOrders(){
-  const mockOrders = [
-    {id:'PV-2025-0042',date:'8 mars 2025',status:'delivered',items:[{id:1},{id:2}],total:339.98},
-    {id:'PV-2025-0031',date:'21 fév. 2025',status:'delivered',items:[{id:3},{id:12}],total:122.99},
-    {id:'PV-2025-0018',date:'5 fév. 2025',status:'delivered',items:[{id:6}],total:179.99},
-    ...(JSON.parse(localStorage.getItem('pokevault_orders')||'[]')).map((o)=>({...o,status:'delivered'})),
-  ].slice(0,6);
-  if(!mockOrders.length) return `<div style="text-align:center;padding:80px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Aucune commande pour l'instant</div>`;
-  return `<div class="orders-list">${mockOrders.map(o=>{
-    const items = o.items.map(it=>PRODUCTS.find(p=>p.id===it.id)).filter(Boolean);
-    return `<div class="order-card">
-      <div class="order-header">
-        <div>
-          <div class="order-id">${o.id}</div>
-          <div class="order-date">${o.date}</div>
+  const container = document.getElementById('ordersContainer');
+  if(!container) return;
+  container.innerHTML = `<div style="text-align:center;padding:60px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Chargement…</div>`;
+  api('/orders/mine').then(data => {
+    const orders = data.orders || [];
+    if(!orders.length){
+      container.innerHTML = `<div style="text-align:center;padding:80px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Aucune commande pour l'instant</div>`;
+      return;
+    }
+    const statusLabel = {paid:'Payé',shipped:'Expédié',delivered:'Livré',pending:'En cours',cancelled:'Annulé'};
+    container.innerHTML = `<div class="orders-list">${orders.map(o=>{
+      const items = o.items || [];
+      const date  = new Date(o.createdAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      return `<div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id">${o.orderRef||o._id}</div>
+            <div class="order-date">${date}</div>
+          </div>
+          <span class="order-status status-${o.status}">${statusLabel[o.status]||o.status}</span>
         </div>
-        <span class="order-status status-${o.status}">${o.status==='delivered'?'Livré':o.status==='shipped'?'Expédié':'En cours'}</span>
-      </div>
-      <div class="order-items">
-        ${items.map(p=>`
-          <img src="${p.img}" alt="${p.name}" class="order-item-thumb" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=order-item-emoji>${p.emoji}</div>')">
-        `).join('')}
-      </div>
-      <div class="order-footer">
-        <span style="font-size:.85rem;color:var(--gray)">${items.map(p=>p.name).join(', ')}</span>
-        <span class="order-total">${formatPrice(o.total)}</span>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+        <div class="order-items">
+          ${items.map(it=>`
+            <img src="${it.img||''}" alt="${it.name}" class="order-item-thumb" onerror="this.style.display='none'">
+          `).join('')}
+        </div>
+        <div class="order-footer">
+          <span style="font-size:.85rem;color:var(--gray)">${items.map(it=>it.name).join(', ')}</span>
+          <span class="order-total">${formatPrice(o.total)}</span>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }).catch(() => {
+    container.innerHTML = `<div style="text-align:center;padding:60px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Erreur de chargement</div>`;
+  });
 }
 
 function renderWishlist(){
@@ -3682,33 +3744,40 @@ function renderSettings(){
     </div>`;
 }
 
-function saveProfile(){
+async function saveProfile(){
   const first = document.getElementById('profileFirst')?.value.trim();
   const last  = document.getElementById('profileLast')?.value.trim();
-  const email = document.getElementById('profileEmail')?.value.trim();
-  if(!first||!last||!email){showToast('Tous les champs sont requis','⚠️');return}
-  const oldEmail = currentUser.email;
-  currentUser = {...currentUser, firstName:first, lastName:last, email};
-  localStorage.setItem('pokevault_user', JSON.stringify(currentUser));
-  // Sync dans le store users
-  const users = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
-  const idx = users.findIndex(u=>u.email===oldEmail);
-  if(idx>=0){ users[idx]={...users[idx],firstName:first,lastName:last,email}; localStorage.setItem('pokevault_users',JSON.stringify(users)); }
-  renderHeaderAuth();
-  showToast('Profil mis à jour','✅');
+  if(!first||!last){showToast('Tous les champs sont requis','⚠️');return}
+  try {
+    const data = await api('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify({ firstName: first, lastName: last }),
+    });
+    currentUser = {...currentUser, ...data.user};
+    localStorage.setItem('pokevault_user', JSON.stringify(currentUser));
+    renderHeaderAuth();
+    showToast('Profil mis à jour','✅');
+  } catch(err) {
+    showToast(err.message || 'Erreur mise à jour','⚠️');
+  }
 }
 
-function savePassword(){
-  const pwd = document.getElementById('profilePwd')?.value;
+async function savePassword(){
+  const pwd     = document.getElementById('profilePwd')?.value;
   const confirm = document.getElementById('profilePwdConfirm')?.value;
   if(!pwd||pwd.length<8){showToast('8 caractères minimum','⚠️');return}
   if(pwd!==confirm){showToast('Les mots de passe ne correspondent pas','⚠️');return}
-  currentUser = {...currentUser, password:btoa(pwd)};
-  localStorage.setItem('pokevault_user', JSON.stringify(currentUser));
-  const users = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
-  const idx = users.findIndex(u=>u.email===currentUser.email);
-  if(idx>=0){ users[idx]={...users[idx],password:btoa(pwd)}; localStorage.setItem('pokevault_users',JSON.stringify(users)); }
-  showToast('Mot de passe mis à jour','🔐');
+  try {
+    await api('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword: '', newPassword: pwd }),
+    });
+    showToast('Mot de passe mis à jour','🔐');
+    document.getElementById('profilePwd').value = '';
+    document.getElementById('profilePwdConfirm').value = '';
+  } catch(err) {
+    showToast(err.message || 'Erreur mise à jour','⚠️');
+  }
 }
 
 // ===== GLOBAL SEARCH =====
