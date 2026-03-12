@@ -1712,6 +1712,22 @@ footer{
 .admin-subtitle{font-size:.82rem;color:rgba(240,238,232,.35);margin-top:6px;font-style:italic;letter-spacing:.3px}
 .admin-save-all{background:var(--gold);color:var(--black);font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1.5px;padding:10px 22px;border-radius:6px;font-weight:700;transition:.2s;flex-shrink:0}
 .admin-save-all:hover{background:var(--gold3);transform:translateY(-2px)}
+.admin-tab{background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(240,238,232,.45);font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:1.5px;padding:10px 20px;cursor:pointer;transition:.2s;margin-bottom:-1px}
+.admin-tab:hover{color:rgba(240,238,232,.8)}
+.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.admin-data-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.admin-data-table th{padding:10px 14px;text-align:left;font-size:.68rem;letter-spacing:1.5px;color:rgba(240,238,232,.4);border-bottom:1px solid rgba(255,255,255,.07);font-family:'Cinzel',serif;font-weight:600}
+.admin-data-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:rgba(240,238,232,.8);vertical-align:middle}
+.admin-data-table tr:hover td{background:rgba(255,255,255,.025)}
+.admin-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.5px}
+.admin-badge.admin{background:rgba(245,200,66,.15);color:var(--gold)}
+.admin-badge.client{background:rgba(79,195,247,.1);color:#4fc3f7}
+.admin-badge.active{background:rgba(129,199,132,.15);color:#81c784}
+.admin-badge.used{background:rgba(255,255,255,.06);color:rgba(240,238,232,.4)}
+.admin-section-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px}
+.admin-stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:20px;text-align:center}
+.admin-stat-num{font-size:2rem;font-weight:700;color:var(--gold);font-family:'Cinzel',serif}
+.admin-stat-label{font-size:.72rem;color:rgba(240,238,232,.45);margin-top:4px;letter-spacing:.5px}
 .admin-scroll{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.015)}
 .admin-table{width:100%;border-collapse:collapse;min-width:860px}
 .admin-table th{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:2px;color:rgba(240,238,232,.4);text-align:left;padding:14px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07);white-space:nowrap}
@@ -2256,15 +2272,23 @@ footer{
           <button onclick="navigate(previousPage==='auth'?'home':previousPage)" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(240,238,232,.6);border-radius:6px;padding:7px 14px;font-size:.75rem;font-family:'Cinzel',serif;letter-spacing:1px;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">← Retour</button>
           <div class="admin-title">⚙ Administration</div>
         </div>
-        <div class="admin-subtitle" style="margin-top:6px">Modifications appliquées immédiatement · Persistées en localStorage entre les sessions</div>
+        <div class="admin-subtitle" style="margin-top:6px">Panneau de gestion PokéVault</div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:10px;flex-wrap:wrap" id="adminHeaderActions">
         <button class="admin-save-all" onclick="adminSaveAll()">💾 Tout sauvegarder</button>
         <button class="admin-save-all" onclick="adminResetAll()" style="background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red)">↩ Réinitialiser</button>
       </div>
     </div>
+    <!-- Admin Tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <button class="admin-tab active" id="adminTabProduits" onclick="switchAdminTab('produits')">🃏 Produits</button>
+      <button class="admin-tab" id="adminTabClients" onclick="switchAdminTab('clients')">👥 Clients</button>
+      <button class="admin-tab" id="adminTabNewsletter" onclick="switchAdminTab('newsletter')">📧 Newsletter</button>
+    </div>
     <div class="admin-scroll">
       <div id="adminTableWrap"></div>
+      <div id="adminClientsWrap" style="display:none"></div>
+      <div id="adminNewsletterWrap" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -3386,9 +3410,31 @@ function initHero(){
 }
 
 // ===== NEWSLETTER =====
-function subscribeNewsletter(btn){
-  btn.textContent='✓';btn.style.background='#81c784';btn.style.color='#fff';
-  showToast('Newsletter', '📧');
+async function subscribeNewsletter(btn){
+  const input = btn.previousElementSibling;
+  const email = input?.value?.trim();
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showToast('Email invalide','⚠️'); return;
+  }
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const data = await api('/newsletter', { method:'POST', body: JSON.stringify({ email }) });
+    btn.textContent = '✓'; btn.style.background = '#81c784'; btn.style.color = '#fff';
+    input.value = '';
+    // Show promo code in a toast
+    showToast(`Code promo : ${data.promoCode} (−5%)`, '🎁');
+    // Also show below the form
+    const sub = btn.closest('.newsletter-form')?.nextElementSibling;
+    if(sub){ sub.innerHTML = `🎁 Votre code : <strong style="color:var(--gold);letter-spacing:2px">${data.promoCode}</strong>`; sub.style.color='rgba(240,238,232,.8)'; }
+  } catch(err) {
+    if(err.message?.includes('déjà inscrit')){
+      btn.textContent = '✓'; btn.style.background = '#81c784'; btn.style.color = '#fff';
+      showToast('Déjà inscrit !', '📧');
+    } else {
+      btn.disabled = false; btn.textContent = 'OK';
+      showToast(err.message || 'Erreur inscription', '⚠️');
+    }
+  }
 }
 
 // ===== UTILS =====
@@ -3426,7 +3472,7 @@ async function api(path, options = {}) {
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   const res = await fetch(API_URL + path, { ...options, headers });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || `Erreur ${res.status}`);
+  if (!res.ok) { const err = new Error(data.message || `Erreur ${res.status}`); Object.assign(err, data); throw err; }
   return data;
 }
 
@@ -3925,23 +3971,40 @@ function showGuestModal(){
 function closeGuestModal(){
   document.getElementById('guestModal')?.classList.remove('open');
 }
-function claimNewsletterPromo(){
+async function claimNewsletterPromo(){
   const email = document.getElementById('guestEmail').value.trim();
   const err   = document.getElementById('guestEmailErr');
   if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    err.textContent = 'Adresse e-mail invalide';
-    return;
+    err.textContent = 'Adresse e-mail invalide'; return;
   }
   err.textContent = '';
-  currentPromo = 'NEWSLETTER5';
-  updateCartSummary();
-  const inp = document.getElementById('promoInput');
-  if(inp) inp.value = 'NEWSLETTER5';
-  const msg = document.getElementById('promoMsg');
-  if(msg){ msg.textContent = '🎁 Code −5% Newsletter appliqué !'; msg.className = 'promo-msg ok'; }
-  closeGuestModal();
-  showToast('Code −5% appliqué !', '🎁');
-  navigate('checkout');
+  const btn = document.querySelector('.btn-claim');
+  if(btn){ btn.disabled = true; btn.textContent = 'Inscription...'; }
+  try {
+    const data = await api('/newsletter', { method:'POST', body: JSON.stringify({ email }) });
+    const code = data.promoCode;
+    currentPromo = code;
+    updateCartSummary();
+    const inp = document.getElementById('promoInput');
+    if(inp) inp.value = code;
+    const msg = document.getElementById('promoMsg');
+    if(msg){ msg.textContent = `🎁 Code ${code} −5% appliqué !`; msg.className = 'promo-msg ok'; }
+    closeGuestModal();
+    showToast(`Code ${code} −5% appliqué !`, '🎁');
+    navigate('checkout');
+  } catch(e) {
+    // If already subscribed, still apply the promo code
+    if(e.message?.includes('déjà inscrit') && e.promoCode){
+      currentPromo = e.promoCode;
+      updateCartSummary();
+      closeGuestModal();
+      showToast('Code promo récupéré !', '🎁');
+      navigate('checkout');
+    } else {
+      err.textContent = e.message || 'Erreur, réessayez.';
+      if(btn){ btn.disabled = false; btn.textContent = 'Obtenir mon code −5%'; }
+    }
+  }
 }
 function continueAsGuest(){
   closeGuestModal();
@@ -3950,6 +4013,104 @@ function continueAsGuest(){
 
 // ===== ADMIN =====
 const ADMIN_KEY = 'pokevault_products';
+let currentAdminTab = 'produits';
+
+function switchAdminTab(tab){
+  currentAdminTab = tab;
+  ['produits','clients','newsletter'].forEach(t=>{
+    document.getElementById(`adminTab${t.charAt(0).toUpperCase()+t.slice(1)}`)?.classList.toggle('active', t===tab);
+  });
+  document.getElementById('adminTableWrap').style.display      = tab==='produits'    ? '' : 'none';
+  document.getElementById('adminClientsWrap').style.display    = tab==='clients'     ? '' : 'none';
+  document.getElementById('adminNewsletterWrap').style.display = tab==='newsletter'  ? '' : 'none';
+
+  // Show/hide product-only header actions
+  const actions = document.getElementById('adminHeaderActions');
+  if(actions) actions.style.display = tab==='produits' ? 'flex' : 'none';
+
+  if(tab==='clients')    renderAdminUsers();
+  if(tab==='newsletter') renderAdminNewsletter();
+}
+
+async function renderAdminUsers(){
+  const wrap = document.getElementById('adminClientsWrap');
+  wrap.innerHTML = '<div style="padding:40px;text-align:center;color:rgba(240,238,232,.4)">Chargement...</div>';
+  try {
+    const data = await api('/admin/users');
+    const { users, total } = data;
+    wrap.innerHTML = `
+      <div class="admin-section-stats">
+        <div class="admin-stat-card"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">CLIENTS</div></div>
+      </div>
+      <div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.07)">
+      <table class="admin-data-table">
+        <thead><tr>
+          <th>NOM</th><th>EMAIL</th><th>RÔLE</th><th>INSCRIPTION</th><th>VILLE</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u=>`
+            <tr>
+              <td>${u.firstName} ${u.lastName}</td>
+              <td style="color:rgba(240,238,232,.6)">${u.email}</td>
+              <td><span class="admin-badge ${u.isAdmin?'admin':'client'}">${u.isAdmin?'Admin':'Client'}</span></td>
+              <td style="color:rgba(240,238,232,.4);font-size:.78rem">${new Date(u.createdAt).toLocaleDateString('fr-FR')}</td>
+              <td style="color:rgba(240,238,232,.5)">${u.address?.city||'—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      </div>`;
+  } catch(err) {
+    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red)">${err.message}</div>`;
+  }
+}
+
+async function renderAdminNewsletter(){
+  const wrap = document.getElementById('adminNewsletterWrap');
+  wrap.innerHTML = '<div style="padding:40px;text-align:center;color:rgba(240,238,232,.4)">Chargement...</div>';
+  try {
+    const data = await api('/newsletter');
+    const { subscribers, total } = data;
+    wrap.innerHTML = `
+      <div class="admin-section-stats">
+        <div class="admin-stat-card"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">ABONNÉS</div></div>
+        <div class="admin-stat-card"><div class="admin-stat-num">${subscribers.filter(s=>s.used).length}</div><div class="admin-stat-label">CODES UTILISÉS</div></div>
+      </div>
+      <div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.07)">
+      <table class="admin-data-table">
+        <thead><tr>
+          <th>EMAIL</th><th>CODE PROMO</th><th>STATUT</th><th>DATE</th><th>ACTION</th>
+        </tr></thead>
+        <tbody>
+          ${subscribers.map(s=>`
+            <tr>
+              <td>${s.email}</td>
+              <td><span style="font-family:monospace;color:var(--gold);letter-spacing:2px">${s.promoCode}</span></td>
+              <td><span class="admin-badge ${s.used?'used':'active'}">${s.used?'Utilisé':'Actif'}</span></td>
+              <td style="color:rgba(240,238,232,.4);font-size:.78rem">${new Date(s.createdAt).toLocaleDateString('fr-FR')}</td>
+              <td>
+                <button onclick="adminDeleteSubscriber('${s._id}',this)" style="background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red);padding:4px 10px;border-radius:4px;font-size:.72rem;cursor:pointer">Supprimer</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      </div>`;
+  } catch(err) {
+    wrap.innerHTML = `<div style="padding:40px;text-align:center;color:var(--red)">${err.message}</div>`;
+  }
+}
+
+async function adminDeleteSubscriber(id, btn){
+  if(!confirm('Supprimer cet abonné ?')) return;
+  try {
+    await api(`/newsletter/${id}`, { method:'DELETE' });
+    btn.closest('tr').remove();
+    showToast('Abonné supprimé','🗑️');
+  } catch(err) {
+    showToast(err.message,'⚠️');
+  }
+}
 
 function renderAdmin(){
   const wrap = document.getElementById('adminTableWrap');
