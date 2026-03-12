@@ -1,0 +1,4016 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PokeVault — Cartes Pokémon Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0a0a0f;
+  --black2: #12121a;
+  --black3: #1a1a26;
+  --gold: #f5c842;
+  --gold2: #e8a800;
+  --gold3: #ffd966;
+  --red: #e63946;
+  --cyan: #00e5ff;
+  --violet: #b44fff;
+  --white: #f0eee8;
+  --gray: #888;
+  --card-w: 220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--white);
+  font-family:'Crimson Text',serif;
+  font-size:16px;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+img{display:block;max-width:100%}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--black2)}
+::-webkit-scrollbar-thumb{background:var(--gold2);border-radius:3px}
+
+/* ===== HEADER ===== */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(10,10,15,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(245,200,66,0.2);
+  padding:0 24px;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all .3s;
+}
+header.scrolled{background:rgba(10,10,15,0.98);box-shadow:0 2px 30px rgba(245,200,66,0.1)}
+.logo{
+  font-family:'Cinzel Decorative',serif;
+  font-size:1.4rem;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--gold3),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+  cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-ball{
+  width:20px;height:20px;flex-shrink:0;
+  color:var(--gold);
+  animation:spinBall 12s linear infinite;
+}
+@keyframes spinBall{to{transform:rotate(360deg)}}
+nav{display:flex;gap:32px;align-items:center}
+nav a{
+  font-family:'Cinzel',serif;
+  font-size:.75rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--white);
+  opacity:.7;
+  transition:.3s;
+  position:relative;
+}
+nav a::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;
+  background:var(--gold);transform:scaleX(0);transition:.3s;
+}
+nav a:hover{opacity:1;color:var(--gold)}
+nav a:hover::after{transform:scaleX(1)}
+nav a.active{opacity:1;color:var(--gold)}
+nav a.active::after{transform:scaleX(1)}
+
+.cart-btn{
+  position:relative;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);
+  padding:8px 20px;
+  border-radius:4px;
+  font-family:'Cinzel',serif;
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:2px;
+  transition:.3s;
+  display:flex;align-items:center;gap:8px;
+}
+.cart-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,200,66,0.4)}
+.cart-count{
+  background:var(--red);
+  color:#fff;
+  border-radius:50%;
+  width:20px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;
+  min-width:20px;
+}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:24px;height:2px;background:var(--gold);transition:.3s}
+.mobile-nav{
+  display:none;position:fixed;top:64px;left:0;right:0;z-index:999;
+  background:rgba(10,10,15,0.98);backdrop-filter:blur(12px);
+  padding:24px;
+  flex-direction:column;gap:20px;
+  border-bottom:1px solid rgba(245,200,66,0.15);
+}
+.mobile-nav a{
+  font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:2px;
+  text-transform:uppercase;opacity:.8;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.mobile-nav.open{display:flex}
+
+/* ===== SECTIONS ===== */
+.page{display:none;padding-top:64px;min-height:100vh}
+.page.active{display:block}
+
+/* ===== HERO ===== */
+#home{padding-top:0;position:relative;overflow:hidden}
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;text-align:center;
+  position:relative;
+  padding:100px 24px 80px;
+  overflow:hidden;
+  background:#04040a;
+}
+/* Atmospheric background */
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 35% 70% at 18% 60%, rgba(0,80,220,.28) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 70% at 82% 60%, rgba(200,70,0,.22) 0%, transparent 70%),
+    radial-gradient(ellipse 25% 50% at 50% 50%, rgba(255,255,255,.07) 0%, transparent 60%),
+    #04040a;
+}
+/* Central clash beam */
+.hero-clash{
+  position:absolute;left:50%;top:0;bottom:0;
+  width:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(to bottom,transparent 5%,rgba(255,255,255,.18) 30%,rgba(255,255,255,.35) 50%,rgba(255,255,255,.18) 70%,transparent 95%);
+  filter:blur(6px);
+  z-index:1;
+  animation:clashPulse 3s ease-in-out infinite;
+}
+.hero-clash::before{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:240px;height:240px;
+  background:radial-gradient(ellipse,rgba(255,255,255,.12) 0%,transparent 70%);
+  filter:blur(30px);
+}
+@keyframes clashPulse{
+  0%,100%{opacity:.5}50%{opacity:1}
+}
+/* Zekrom — left dragon */
+.hero-zekrom{
+  position:absolute;left:-2%;bottom:0;
+  width:min(340px,34vw);
+  z-index:2;
+  filter:drop-shadow(0 0 24px rgba(0,130,255,.65)) drop-shadow(0 0 60px rgba(0,60,200,.35));
+  animation:floatL 5s ease-in-out infinite;
+}
+@keyframes floatL{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-22px) rotate(.5deg)}}
+/* Reshiram — right dragon */
+.hero-reshiram{
+  position:absolute;right:-2%;bottom:0;
+  width:min(340px,34vw);
+  z-index:2;
+  filter:drop-shadow(0 0 24px rgba(255,160,40,.65)) drop-shadow(0 0 60px rgba(220,80,0,.35));
+  animation:floatR 5s ease-in-out infinite;
+  animation-delay:-2.5s;
+}
+@keyframes floatR{0%,100%{transform:translateY(0) rotate(1.5deg)}50%{transform:translateY(-22px) rotate(-.5deg)}}
+/* Lightning bolts — Zekrom side */
+.lightning-wrap{position:absolute;left:0;top:0;width:42%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+.bolt{
+  position:absolute;top:0;height:100%;
+  width:1.5px;
+  background:linear-gradient(to bottom,transparent 0%,#60c8ff 20%,#0090ff 50%,#60c8ff 80%,transparent 100%);
+  filter:blur(.8px);
+  box-shadow:0 0 8px #00aaff,0 0 20px #0055ff;
+  opacity:0;
+  transform-origin:top;
+  animation:bolt var(--dur,5s) ease-in-out infinite var(--delay,0s);
+}
+@keyframes bolt{
+  0%,100%{opacity:0;transform:scaleY(0) skewX(var(--skew,0deg))}
+  4%{opacity:1;transform:scaleY(1) skewX(var(--skew,0deg))}
+  10%{opacity:0;transform:scaleY(1) skewX(var(--skew,0deg))}
+  55%{opacity:0}
+  59%{opacity:.6;transform:scaleY(1) skewX(var(--skew,0deg))}
+  64%{opacity:0;transform:scaleY(1) skewX(var(--skew,0deg))}
+}
+/* Flames — Reshiram side */
+.flame-wrap{position:absolute;right:0;top:0;width:42%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
+.flame{
+  position:absolute;
+  border-radius:50% 50% 30% 30% / 60% 60% 40% 40%;
+  animation:flicker var(--dur,3s) ease-in-out infinite var(--delay,0s);
+}
+@keyframes flicker{
+  0%,100%{transform:scaleX(1) scaleY(1) rotate(-4deg);opacity:.75}
+  30%{transform:scaleX(.82) scaleY(1.18) rotate(4deg);opacity:1}
+  65%{transform:scaleX(1.12) scaleY(.88) rotate(-2deg);opacity:.8}
+}
+/* Hero content */
+.hero-content{position:relative;z-index:5;max-width:560px;margin:0 auto}
+.hero-eyebrow{
+  font-family:'Cinzel',serif;
+  font-size:.68rem;letter-spacing:6px;text-transform:uppercase;
+  color:var(--gold);opacity:.85;
+  margin-bottom:18px;
+  display:inline-flex;align-items:center;gap:14px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:inline-block;width:28px;height:1px;background:var(--gold);opacity:.5}
+.hero-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(2.2rem,7vw,5.5rem);
+  font-weight:700;line-height:1.05;margin-bottom:8px;
+  background:linear-gradient(160deg,#ffffff 0%,var(--gold3) 35%,var(--gold) 55%,#c8f0ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 30px rgba(245,200,66,.25));
+}
+.hero-sub{
+  font-family:'Cinzel',serif;
+  font-size:clamp(.85rem,2vw,1.15rem);
+  letter-spacing:5px;text-transform:uppercase;
+  margin-bottom:20px;
+  background:linear-gradient(90deg,#60b8ff,var(--white),#ffaa44);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  opacity:.9;
+}
+.hero-desc{
+  font-size:1.1rem;color:rgba(240,238,232,.65);
+  max-width:440px;margin:0 auto 44px;line-height:1.85;
+}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);padding:14px 36px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;transition:.3s;
+  box-shadow:0 4px 20px rgba(245,200,66,.3);
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(245,200,66,.5)}
+.btn-secondary{
+  background:transparent;color:var(--white);padding:13px 36px;border-radius:4px;
+  border:1px solid rgba(245,200,66,.4);
+  font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:3px;text-transform:uppercase;transition:.3s;
+}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-3px)}
+.hero-stats{display:flex;gap:44px;justify-content:center;margin-top:56px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-family:'Cinzel',serif;font-size:1.9rem;font-weight:700;color:var(--gold);display:block}
+.stat-label{font-size:.75rem;letter-spacing:2px;text-transform:uppercase;opacity:.55}
+.scroll-indicator{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  z-index:6;display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:.45;animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.scroll-indicator span{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;font-family:'Cinzel',serif}
+.scroll-arrow{width:18px;height:18px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(45deg)}
+
+/* FEATURES STRIP */
+.features-strip{
+  background:var(--black2);
+  border-top:1px solid rgba(245,200,66,.1);
+  border-bottom:1px solid rgba(245,200,66,.1);
+  padding:32px 24px;
+  display:flex;gap:32px;justify-content:center;flex-wrap:wrap;
+}
+.feature{display:flex;align-items:center;gap:12px;font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;opacity:.8}
+.feature-icon{font-size:1.4rem}
+
+/* FEATURED SECTION */
+.section{padding:80px 24px;max-width:1200px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:48px}
+.section-eyebrow{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:6px;text-transform:uppercase;
+  color:var(--gold);opacity:.8;margin-bottom:12px;
+}
+.section-title{
+  font-family:'Cinzel',serif;font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;
+  background:linear-gradient(135deg,var(--white),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* ===== CATALOGUE ===== */
+#catalogue{background:var(--black)}
+.catalogue-inner{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+.catalogue-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:32px;flex-wrap:wrap;gap:16px;
+}
+.catalogue-title{
+  font-family:'Cinzel',serif;font-size:1.8rem;font-weight:700;
+  background:linear-gradient(135deg,var(--white),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.catalogue-count{font-size:.85rem;color:var(--gray);margin-top:4px}
+.filters-bar{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.12);
+  border-radius:8px;
+  padding:20px 24px;
+  margin-bottom:32px;
+  display:flex;gap:16px;flex-wrap:wrap;align-items:center;
+}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap input{
+  width:100%;
+  background:var(--black3);
+  border:1px solid rgba(245,200,66,.2);
+  border-radius:4px;
+  padding:10px 16px 10px 40px;
+  color:var(--white);
+  font-family:'Crimson Text',serif;font-size:1rem;
+  transition:.3s;
+}
+.search-wrap input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.1)}
+.search-wrap input::placeholder{color:var(--gray)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.5;font-size:1rem}
+.filter-select{
+  background:var(--black3);
+  border:1px solid rgba(245,200,66,.2);
+  border-radius:4px;
+  padding:10px 16px;
+  color:var(--white);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1px;
+  cursor:pointer;transition:.3s;
+  appearance:none;
+  -webkit-appearance:none;
+  min-width:130px;
+}
+.filter-select:focus{outline:none;border-color:var(--gold)}
+.filter-select option{background:var(--black3)}
+.active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-tag{
+  background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);
+  border-radius:20px;padding:4px 12px;font-size:.75rem;
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  font-family:'Cinzel',serif;letter-spacing:1px;
+  transition:.3s;
+}
+.filter-tag:hover{background:rgba(245,200,66,.2)}
+.filter-tag-x{opacity:.6;font-size:.8rem}
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:24px;
+}
+.no-results{
+  text-align:center;padding:80px 24px;
+  opacity:.5;font-family:'Cinzel',serif;letter-spacing:2px;
+}
+
+/* ===== PRODUCT CARD ===== */
+.product-card{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+  position:relative;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.product-card:hover{
+  border-color:rgba(245,200,66,.4);
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 30px rgba(245,200,66,.15);
+}
+.card-img-wrap{
+  position:relative;height:200px;overflow:hidden;
+  background:var(--black3);
+}
+.card-img{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:5rem;
+  position:relative;z-index:1;
+  transition:transform .3s;
+}
+.card-real-img{
+  width:100%;height:100%;
+  object-fit:contain;
+  object-position:center;
+  padding:8px;
+  transition:transform .3s;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));
+}
+.card-emoji-fallback{
+  font-size:5rem;display:flex;
+  align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.product-card:hover .card-img{transform:scale(1.08)}
+.product-emoji{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.product-real-img{
+  max-height:340px;width:auto;max-width:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.6));
+  transition:transform .1s;
+}
+.card-holo{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(135deg,
+    transparent 0%,
+    rgba(0,229,255,.06) 20%,
+    rgba(180,79,255,.08) 40%,
+    rgba(245,200,66,.06) 60%,
+    rgba(0,229,255,.06) 80%,
+    transparent 100%
+  );
+  opacity:0;transition:opacity .3s;
+  mix-blend-mode:screen;
+}
+.product-card:hover .card-holo{opacity:1}
+.card-shine{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.12) 0%,transparent 60%);
+  opacity:0;transition:opacity .2s;
+}
+.product-card:hover .card-shine{opacity:1}
+.card-rarity-glow{
+  position:absolute;bottom:0;left:0;right:0;height:4px;z-index:4;
+}
+.rarity-commune{background:linear-gradient(90deg,#888,#aaa,#888)}
+.rarity-peu-commune{background:linear-gradient(90deg,#4fc3f7,#29b6f6,#4fc3f7)}
+.rarity-rare{background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold2))}
+.rarity-ultra{background:linear-gradient(90deg,var(--violet),var(--cyan),var(--violet));box-shadow:0 0 10px rgba(180,79,255,.5)}
+.rarity-secret{background:linear-gradient(90deg,#ff6b35,var(--gold),#ff6b35);box-shadow:0 0 15px rgba(245,200,66,.6);animation:secretGlow 2s ease-in-out infinite alternate}
+@keyframes secretGlow{0%{box-shadow:0 0 10px rgba(245,200,66,.4)}100%{box-shadow:0 0 25px rgba(245,200,66,.9),0 0 40px rgba(255,107,53,.4)}}
+.card-badges{
+  position:absolute;top:10px;left:10px;z-index:5;
+  display:flex;flex-direction:column;gap:4px;
+}
+.badge{
+  padding:3px 8px;border-radius:3px;
+  font-family:'Cinzel',serif;font-size:.6rem;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;
+}
+.badge-new{background:var(--cyan);color:var(--black)}
+.badge-popular{background:var(--gold);color:var(--black)}
+.badge-soldout{background:var(--red);color:#fff}
+.card-info{padding:14px 16px}
+.card-name{
+  font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;
+  color:var(--white);margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.card-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card-type{
+  font-size:.72rem;letter-spacing:1px;text-transform:uppercase;
+  padding:2px 8px;border-radius:10px;font-family:'Cinzel',serif;
+}
+.type-feu{background:rgba(230,57,70,.2);color:#ff6b7a;border:1px solid rgba(230,57,70,.3)}
+.type-eau{background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.25)}
+.type-electrik{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.25)}
+.type-psy{background:rgba(180,79,255,.15);color:#cf88ff;border:1px solid rgba(180,79,255,.25)}
+.type-plante{background:rgba(102,187,106,.15);color:#81c784;border:1px solid rgba(102,187,106,.25)}
+.type-normal{background:rgba(180,180,180,.12);color:#bbb;border:1px solid rgba(180,180,180,.2)}
+.card-rarity-text{font-size:.7rem;opacity:.6;letter-spacing:1px}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-price{
+  font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
+  color:var(--gold);
+}
+.card-price.expensive{color:var(--violet)}
+.card-price.ultra-expensive{
+  background:linear-gradient(135deg,var(--gold),var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.btn-add-mini{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);
+  padding:6px 14px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;letter-spacing:1px;
+  transition:.3s;
+}
+.btn-add-mini:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(245,200,66,.4)}
+.btn-add-mini:disabled{background:#333;color:#666;cursor:not-allowed;transform:none;box-shadow:none}
+.card-condition{font-size:.7rem;opacity:.5;letter-spacing:.5px;margin-top:2px}
+
+/* ===== PRODUCT DETAIL ===== */
+#product{background:var(--black)}
+.product-inner{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+.product-back{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);opacity:.7;cursor:pointer;margin-bottom:32px;
+  transition:.3s;
+}
+.product-back:hover{opacity:1;transform:translateX(-4px)}
+.product-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.product-card-display{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.15);
+  border-radius:16px;
+  padding:40px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  overflow:hidden;
+  min-height:380px;
+  cursor:crosshair;
+}
+.product-card-display::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(180,79,255,.08) 0%,transparent 70%);
+}
+.product-emoji-old{
+  font-size:9rem;
+  position:relative;z-index:1;
+  filter:drop-shadow(0 0 30px rgba(245,200,66,.3));
+  transition:transform .1s;
+  user-select:none;
+}
+.product-holo-overlay{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:conic-gradient(from 0deg at var(--mx,50%) var(--my,50%),
+    rgba(0,229,255,.08) 0deg,
+    rgba(180,79,255,.1) 90deg,
+    rgba(245,200,66,.08) 180deg,
+    rgba(0,229,255,.1) 270deg,
+    rgba(0,229,255,.08) 360deg
+  );
+  mix-blend-mode:screen;
+  opacity:0;transition:opacity .3s;
+}
+.product-card-display:hover .product-holo-overlay{opacity:1}
+.product-details{padding-top:8px}
+.product-extension{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);opacity:.7;margin-bottom:8px;
+}
+.product-name{
+  font-family:'Cinzel',serif;font-size:2rem;font-weight:700;
+  line-height:1.2;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--white),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.product-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.product-price-block{
+  background:var(--black2);border:1px solid rgba(245,200,66,.15);
+  border-radius:8px;padding:20px;margin-bottom:24px;
+}
+.product-price-main{
+  font-family:'Cinzel',serif;font-size:2.4rem;font-weight:700;
+  color:var(--gold);margin-bottom:4px;
+}
+.product-price-sub{font-size:.85rem;color:var(--gray)}
+.product-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;
+}
+.stat-item{
+  background:var(--black3);border:1px solid rgba(255,255,255,.06);
+  border-radius:6px;padding:12px 14px;
+}
+.stat-item-label{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin-bottom:4px;font-family:'Cinzel',serif}
+.stat-item-val{font-weight:600;font-size:.95rem}
+.product-attacks{margin-bottom:24px}
+.attacks-title{
+  font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:3px;text-transform:uppercase;
+  opacity:.6;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:8px;
+}
+.attack{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.attack-name{font-weight:600}
+.attack-dmg{
+  font-family:'Cinzel',serif;font-weight:700;
+  color:var(--gold);font-size:1.1rem;
+}
+.btn-add-cart{
+  width:100%;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);
+  padding:16px;
+  border-radius:6px;
+  font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;
+  transition:.3s;
+  box-shadow:0 4px 20px rgba(245,200,66,.25);
+  margin-bottom:12px;
+}
+.btn-add-cart:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,200,66,.4)}
+.btn-add-cart:disabled{background:#2a2a2a;color:#555;cursor:not-allowed;transform:none;box-shadow:none}
+.product-guarantee{
+  display:flex;gap:16px;font-size:.8rem;opacity:.6;justify-content:center;flex-wrap:wrap;
+}
+.guarantee-item{display:flex;align-items:center;gap:4px}
+
+/* ===== CART ===== */
+#cart{background:var(--black)}
+.cart-inner{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+.cart-title{
+  font-family:'Cinzel',serif;font-size:1.8rem;font-weight:700;
+  margin-bottom:32px;
+  background:linear-gradient(135deg,var(--white),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.cart-layout{display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start}
+.cart-items{}
+.cart-empty{
+  text-align:center;padding:80px 24px;
+  opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px;
+}
+.cart-empty-icon{font-size:4rem;margin-bottom:16px;display:block}
+.cart-item{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.1);
+  border-radius:10px;
+  padding:16px 20px;
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:12px;
+  transition:.3s;
+}
+.cart-item:hover{border-color:rgba(245,200,66,.2)}
+.cart-item-emoji{font-size:2.5rem;min-width:48px;text-align:center}
+.cart-item-info{flex:1}
+.cart-item-name{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;margin-bottom:2px}
+.cart-item-meta{font-size:.8rem;opacity:.5}
+.cart-item-controls{display:flex;align-items:center;gap:8px}
+.qty-btn{
+  width:28px;height:28px;border-radius:4px;
+  background:var(--black3);border:1px solid rgba(245,200,66,.2);
+  color:var(--white);font-size:1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:.3s;
+}
+.qty-btn:hover{border-color:var(--gold);color:var(--gold)}
+.qty-num{
+  font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;
+  min-width:24px;text-align:center;
+}
+.cart-item-price{
+  font-family:'Cinzel',serif;font-size:1rem;font-weight:700;
+  color:var(--gold);min-width:70px;text-align:right;
+}
+.cart-item-remove{
+  background:none;color:rgba(255,255,255,.3);font-size:1.2rem;
+  padding:4px 8px;transition:.3s;border-radius:4px;
+}
+.cart-item-remove:hover{color:var(--red);background:rgba(230,57,70,.1)}
+.cart-summary{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.12);
+  border-radius:12px;
+  padding:24px;
+  position:sticky;top:80px;
+}
+.summary-title{
+  font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.summary-line{
+  display:flex;justify-content:space-between;
+  margin-bottom:10px;font-size:.9rem;
+}
+.summary-line.total{
+  margin-top:16px;padding-top:16px;
+  border-top:1px solid rgba(245,200,66,.2);
+  font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
+  color:var(--gold);
+}
+.promo-wrap{margin:16px 0;display:flex;gap:8px}
+.promo-input{
+  flex:1;background:var(--black3);
+  border:1px solid rgba(245,200,66,.2);border-radius:4px;
+  padding:10px 14px;color:var(--white);
+  font-family:'Crimson Text',serif;font-size:.95rem;
+}
+.promo-input:focus{outline:none;border-color:var(--gold)}
+.promo-input::placeholder{color:var(--gray)}
+.btn-promo{
+  background:var(--black3);
+  border:1px solid rgba(245,200,66,.3);
+  color:var(--gold);padding:10px 16px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1px;
+  transition:.3s;
+}
+.btn-promo:hover{background:rgba(245,200,66,.1)}
+.promo-msg{font-size:.8rem;text-align:center;margin:4px 0;min-height:1.2em}
+.promo-msg.ok{color:#81c784}
+.promo-msg.err{color:var(--red)}
+.btn-checkout{
+  width:100%;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);
+  padding:16px;border-radius:6px;
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  transition:.3s;margin-top:12px;
+  box-shadow:0 4px 20px rgba(245,200,66,.25);
+}
+.btn-checkout:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,200,66,.4)}
+.btn-checkout:disabled{background:#2a2a2a;color:#555;cursor:not-allowed;transform:none;box-shadow:none}
+.secure-badges{
+  display:flex;justify-content:center;gap:16px;margin-top:16px;
+  font-size:.75rem;opacity:.5;flex-wrap:wrap;
+}
+
+/* ===== PAYMENT METHODS — nouveau design ===== */
+.payment-divider{
+  display:flex;align-items:center;gap:10px;
+  margin:20px 0 14px;
+  font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,238,232,.35);
+}
+.payment-divider::before,.payment-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+
+/* Liste de méthodes */
+.pm-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.pm-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;
+  border-radius:10px;
+  border:1.5px solid rgba(255,255,255,.08);
+  background:var(--black3);
+  cursor:pointer;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+  position:relative;
+  user-select:none;
+}
+.pm-row:hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.18)}
+
+/* Sélectionné — accent coloré via data-attr */
+.pm-row.selected{background:rgba(255,255,255,.04)}
+.pm-row[data-method="stripe"].selected{border-color:#635BFF;box-shadow:0 0 0 3px rgba(99,91,255,.12)}
+.pm-row[data-method="paypal"].selected{border-color:#009cde;box-shadow:0 0 0 3px rgba(0,156,222,.1)}
+.pm-row[data-method="applepay"].selected{border-color:rgba(255,255,255,.45);box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+.pm-row[data-method="klarna"].selected{border-color:#FFB3C7;box-shadow:0 0 0 3px rgba(255,179,199,.1)}
+
+/* Radio indicator */
+.pm-radio{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.pm-row.selected .pm-radio{border-color:currentColor}
+.pm-row[data-method="stripe"].selected .pm-radio{border-color:#635BFF}
+.pm-row[data-method="paypal"].selected .pm-radio{border-color:#009cde}
+.pm-row[data-method="applepay"].selected .pm-radio{border-color:#fff}
+.pm-row[data-method="klarna"].selected .pm-radio{border-color:#FFB3C7}
+.pm-radio-dot{
+  width:10px;height:10px;border-radius:50%;
+  transform:scale(0);transition:transform .15s;
+}
+.pm-row.selected .pm-radio-dot{transform:scale(1)}
+.pm-row[data-method="stripe"].selected .pm-radio-dot{background:#635BFF}
+.pm-row[data-method="paypal"].selected .pm-radio-dot{background:#009cde}
+.pm-row[data-method="applepay"].selected .pm-radio-dot{background:#fff}
+.pm-row[data-method="klarna"].selected .pm-radio-dot{background:#FFB3C7}
+
+/* Wordmark zone */
+.pm-brand{flex:1;min-width:0}
+.pm-wordmark{
+  font-weight:800;letter-spacing:-.5px;line-height:1;margin-bottom:3px;
+}
+.pm-wordmark-stripe{font-size:1.2rem;color:#635BFF;font-family:'Helvetica Neue',Arial,sans-serif}
+.pm-wordmark-paypal{font-size:1.1rem;font-family:'Helvetica Neue',Arial,sans-serif}
+.pm-wordmark-paypal .pp-blue{color:#009cde}
+.pm-wordmark-paypal .pp-dark{color:#003087}
+.pm-wordmark-applepay{font-size:1rem;color:#fff;font-family:-apple-system,'Helvetica Neue',sans-serif;letter-spacing:-.3px}
+.pm-wordmark-klarna{font-size:1.2rem;color:#FFB3C7;font-family:'Helvetica Neue',Arial,sans-serif}
+.pm-desc{font-size:.75rem;color:rgba(240,238,232,.4);font-family:'Crimson Text',serif;margin-top:1px}
+.pm-badge-3x{
+  display:inline-block;
+  background:#FFB3C7;color:#1a1a2e;
+  font-size:.6rem;font-weight:800;
+  padding:1px 6px;border-radius:3px;
+  margin-left:6px;vertical-align:middle;
+  font-family:'Helvetica Neue',Arial,sans-serif;letter-spacing:.3px;
+}
+
+/* Card icons */
+.pm-icons{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.pm-icon{
+  height:22px;padding:0 6px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:900;letter-spacing:.3px;
+  border:1px solid rgba(255,255,255,.1);
+}
+.pm-icon-visa{background:#1a1f71;color:#fff}
+.pm-icon-mc{background:#fff;color:#eb001b;font-size:.55rem}
+.pm-icon-cb{background:#fff;color:#005288;font-size:.55rem}
+.pm-icon-pp{background:linear-gradient(135deg,#003087,#009cde);color:#fff}
+.pm-icon-ap{background:#000;color:#fff;border-color:rgba(255,255,255,.2)}
+.pm-icon-kl{background:#FFB3C7;color:#1a1a2e}
+
+/* CTA pay button */
+.btn-pay{
+  width:100%;padding:15px 20px;border-radius:8px;
+  font-size:.85rem;font-weight:700;letter-spacing:1px;
+  transition:.25s;margin-top:4px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'Cinzel',serif;
+}
+.btn-pay:disabled{background:#222!important;color:#444!important;cursor:not-allowed;transform:none!important;box-shadow:none!important;border:none!important}
+.btn-pay.default-cta{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);box-shadow:0 4px 20px rgba(245,200,66,.2)}
+.btn-pay.default-cta:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,200,66,.35)}
+.btn-pay.stripe-cta{background:#635BFF;color:#fff;box-shadow:0 4px 18px rgba(99,91,255,.35)}
+.btn-pay.stripe-cta:hover:not(:disabled){background:#7169ff;transform:translateY(-2px);box-shadow:0 8px 28px rgba(99,91,255,.45)}
+.btn-pay.paypal-cta{background:#FFC43A;color:#003087;box-shadow:0 4px 18px rgba(255,196,58,.3)}
+.btn-pay.paypal-cta:hover:not(:disabled){background:#ffd166;transform:translateY(-2px)}
+.btn-pay.applepay-cta{background:#000;color:#fff;border:1.5px solid rgba(255,255,255,.2);box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.btn-pay.applepay-cta:hover:not(:disabled){border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
+.btn-pay.klarna-cta{background:#FFB3C7;color:#1a1a2e;box-shadow:0 4px 18px rgba(255,179,199,.3)}
+.btn-pay.klarna-cta:hover:not(:disabled){background:#ffc5d4;transform:translateY(-2px)}
+
+/* ===== ABOUT ===== */
+#about{background:var(--black)}
+.about-inner{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+.about-hero{
+  text-align:center;padding:48px 0 64px;
+  position:relative;
+}
+.about-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(1.8rem,5vw,3rem);
+  background:linear-gradient(135deg,var(--white),var(--gold3),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:16px;
+}
+.about-lead{
+  font-size:1.2rem;color:rgba(240,238,232,.75);
+  max-width:560px;margin:0 auto;line-height:1.8;
+}
+.about-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:24px;margin:48px 0;
+}
+.about-card{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;padding:28px;
+  transition:.3s;
+}
+.about-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-4px)}
+.about-card-icon{font-size:2.5rem;margin-bottom:16px;display:block}
+.about-card-title{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:8px}
+.about-card-text{color:rgba(240,238,232,.7);line-height:1.7;font-size:.95rem}
+.about-story{
+  background:var(--black2);border:1px solid rgba(245,200,66,.08);
+  border-radius:12px;padding:40px;margin:48px 0;
+  border-left:3px solid var(--gold);
+}
+.about-story-title{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;color:var(--gold3);margin-bottom:16px}
+.about-story p{color:rgba(240,238,232,.75);line-height:1.9;margin-bottom:12px;font-size:1rem}
+.about-team{text-align:center;margin-top:48px}
+.team-label{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:24px}
+
+/* ===== TOAST ===== */
+.toast-container{
+  position:fixed;bottom:32px;right:24px;z-index:9999;
+  display:flex;flex-direction:column;gap:8px;
+}
+.toast{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.3);
+  border-radius:8px;
+  padding:14px 20px;
+  display:flex;align-items:center;gap:12px;
+  min-width:280px;max-width:360px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 20px rgba(245,200,66,.1);
+  animation:toastIn .3s ease;
+  font-size:.9rem;
+}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100%)}}
+.toast-icon{font-size:1.4rem}
+.toast-msg{flex:1}
+.toast-title{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:2px}
+
+/* ===== GLOBAL SEARCH ===== */
+.search-btn{
+  background:transparent;
+  border:1px solid rgba(245,200,66,.25);
+  border-radius:4px;
+  color:rgba(240,238,232,.7);
+  padding:8px 12px;
+  font-size:1rem;
+  transition:.3s;
+  display:flex;align-items:center;gap:6px;
+}
+.search-btn:hover{border-color:var(--gold);color:var(--gold)}
+.search-btn-label{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;
+}
+.search-overlay{
+  position:fixed;inset:0;z-index:1100;
+  background:rgba(5,5,10,.92);
+  backdrop-filter:blur(16px);
+  display:flex;flex-direction:column;align-items:center;
+  padding:80px 24px 40px;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.search-overlay.open{opacity:1;pointer-events:all}
+.search-overlay-inner{width:100%;max-width:680px}
+.search-overlay-bar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.3);
+  border-radius:10px;
+  padding:14px 20px;
+  box-shadow:0 0 40px rgba(245,200,66,.1);
+  margin-bottom:24px;
+}
+.search-overlay-bar:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.12),0 0 40px rgba(245,200,66,.15)}
+.search-overlay-icon{font-size:1.3rem;opacity:.6;flex-shrink:0}
+.search-overlay-input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--white);
+  font-family:'Crimson Text',serif;font-size:1.3rem;
+}
+.search-overlay-input::placeholder{color:rgba(240,238,232,.3)}
+.search-overlay-clear{
+  background:none;color:rgba(240,238,232,.4);
+  font-size:1.4rem;padding:0 4px;transition:.3s;
+  flex-shrink:0;
+}
+.search-overlay-clear:hover{color:var(--white)}
+.search-overlay-hint{
+  text-align:center;
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(240,238,232,.3);margin-bottom:32px;
+}
+.search-results{display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 260px);overflow-y:auto;padding-right:4px}
+.search-results::-webkit-scrollbar{width:4px}
+.search-results::-webkit-scrollbar-thumb{background:var(--gold2);border-radius:2px}
+.search-result-item{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.1);
+  border-radius:8px;
+  padding:14px 18px;
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;
+  transition:border-color .2s,background .2s,transform .15s;
+}
+.search-result-item:hover,.search-result-item.focused{
+  border-color:rgba(245,200,66,.4);
+  background:rgba(245,200,66,.05);
+  transform:translateX(4px);
+}
+.search-result-img{
+  width:48px;height:60px;object-fit:contain;flex-shrink:0;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));
+}
+.search-result-emoji{font-size:2rem;width:48px;text-align:center;flex-shrink:0}
+.search-result-info{flex:1;min-width:0}
+.search-result-name{
+  font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:4px;
+}
+.search-result-meta{font-size:.8rem;opacity:.5;display:flex;gap:12px;flex-wrap:wrap}
+.search-result-price{
+  font-family:'Cinzel',serif;font-size:1rem;font-weight:700;
+  color:var(--gold);flex-shrink:0;
+}
+.search-result-rarity-dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;
+}
+.search-no-results{
+  text-align:center;padding:48px 24px;
+  opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px;font-size:.85rem;
+}
+.search-results-header{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);opacity:.7;margin-bottom:12px;
+}
+/* ===== AUTH PAGE ===== */
+#auth{background:var(--black)}
+#auth.page.active{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 16px 48px}
+.auth-wrap{width:100%;max-width:480px}
+.auth-logo{
+  text-align:center;margin-bottom:28px;
+  font-family:'Cinzel Decorative',serif;font-size:1.5rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+}
+.auth-tagline{text-align:center;font-family:'Crimson Text',serif;font-size:1rem;color:rgba(240,238,232,.4);margin-bottom:28px;letter-spacing:.5px}
+.auth-card{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.18);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.3),0 0 60px rgba(245,200,66,.04);
+}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--black3)}
+.auth-tab{
+  padding:18px 12px;text-align:center;
+  font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(240,238,232,.35);cursor:pointer;
+  border-bottom:2px solid transparent;transition:.25s;
+  background:none;
+}
+.auth-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--black2)}
+.auth-tab:hover:not(.active){color:rgba(240,238,232,.65);background:rgba(255,255,255,.02)}
+.auth-form{padding:36px;display:none;flex-direction:column;gap:22px}
+.auth-form.active{display:flex}
+.auth-field{display:flex;flex-direction:column;gap:7px}
+.auth-label{
+  font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,238,232,.55);
+}
+.auth-input{
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:13px 16px;
+  color:var(--white);
+  font-family:'Crimson Text',serif;font-size:1.05rem;
+  transition:.25s;
+}
+.auth-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.1);background:rgba(245,200,66,.03)}
+.auth-input::placeholder{color:rgba(240,238,232,.2)}
+.auth-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,.1)}
+.auth-error{font-size:.78rem;color:var(--red);min-height:1.1rem}
+.auth-divider{
+  display:flex;align-items:center;gap:14px;
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:2px;color:rgba(240,238,232,.25);
+}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.btn-auth{
+  width:100%;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);
+  padding:15px;border-radius:8px;
+  font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  transition:.3s;box-shadow:0 4px 20px rgba(245,200,66,.2);
+}
+.btn-auth:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(245,200,66,.4)}
+.auth-footer-text{text-align:center;font-size:.82rem;color:rgba(240,238,232,.35);padding:0 36px 28px;line-height:1.6}
+.auth-footer-text a{color:var(--gold);cursor:pointer}
+.auth-footer-text a:hover{text-decoration:underline}
+.auth-social{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-social{
+  width:100%;padding:12px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(0,0,0,.2);color:rgba(240,238,232,.7);
+  font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;
+  transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-social:hover{border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.05);color:var(--white)}
+.auth-remember{display:flex;align-items:center;gap:8px;font-size:.85rem;color:rgba(240,238,232,.45);cursor:pointer}
+.auth-remember input{accent-color:var(--gold);width:14px;height:14px}
+.auth-forgot{font-size:.78rem;color:var(--gold);cursor:pointer;text-align:right;flex:1;opacity:.8}
+.auth-forgot:hover{opacity:1;text-decoration:underline}
+.auth-strength{height:3px;border-radius:2px;margin-top:4px;background:rgba(0,0,0,.3);overflow:hidden}
+.auth-strength-bar{height:100%;border-radius:2px;transition:width .3s,background .3s}
+.auth-strength-label{font-size:.72rem;margin-top:4px}
+
+/* ===== ACCOUNT PAGE ===== */
+#account{background:var(--black)}
+.account-inner{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+.account-header{display:flex;align-items:center;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+.account-avatar{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold2),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:1.8rem;font-weight:700;color:var(--black);
+  flex-shrink:0;box-shadow:0 0 0 3px rgba(245,200,66,.2),0 0 30px rgba(245,200,66,.15);
+}
+.account-welcome{flex:1}
+.account-welcome-name{
+  font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;
+  background:linear-gradient(135deg,var(--white),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.account-welcome-email{font-size:.9rem;color:var(--gray)}
+.account-member-since{font-size:.75rem;color:var(--gold);opacity:.7;margin-top:4px;font-family:'Cinzel',serif;letter-spacing:1px}
+.btn-logout{
+  background:transparent;border:1px solid rgba(230,57,70,.4);
+  color:rgba(230,57,70,.8);padding:10px 20px;border-radius:6px;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+  transition:.3s;
+}
+.btn-logout:hover{background:rgba(230,57,70,.1);border-color:var(--red);color:var(--red)}
+.account-tabs{
+  display:flex;gap:4px;margin-bottom:32px;
+  background:var(--black2);padding:6px;border-radius:10px;
+  border:1px solid rgba(245,200,66,.08);flex-wrap:wrap;
+}
+.account-tab{
+  flex:1;padding:10px 16px;border-radius:7px;text-align:center;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,238,232,.5);cursor:pointer;transition:.3s;background:none;
+  white-space:nowrap;
+}
+.account-tab.active{background:var(--black3);color:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.account-tab:hover:not(.active){color:rgba(240,238,232,.8)}
+.account-panel{display:none}
+.account-panel.active{display:block}
+
+/* Profile panel */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.profile-card{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:10px;padding:24px;
+}
+.profile-card.full{grid-column:1/-1}
+.profile-card-title{
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);opacity:.8;margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.profile-field{margin-bottom:14px}
+.profile-field:last-child{margin-bottom:0}
+
+/* Orders panel */
+.orders-list{display:flex;flex-direction:column;gap:16px}
+.order-card{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:10px;padding:20px 24px;
+}
+.order-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.order-id{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--gold)}
+.order-date{font-size:.8rem;color:var(--gray)}
+.order-status{
+  padding:4px 12px;border-radius:20px;
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;
+}
+.status-delivered{background:rgba(129,199,132,.15);color:#81c784;border:1px solid rgba(129,199,132,.3)}
+.status-shipped{background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.3)}
+.status-processing{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.25)}
+.order-items{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.order-item-thumb{
+  width:50px;height:62px;object-fit:contain;border-radius:4px;
+  background:var(--black3);padding:2px;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+}
+.order-item-emoji{width:50px;height:62px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--black3);border-radius:4px}
+.order-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.order-total{font-family:'Cinzel',serif;font-weight:700;color:var(--gold)}
+
+/* Stats panel */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:10px;padding:24px;text-align:center;
+}
+.stat-card-num{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--gold);display:block;margin-bottom:4px}
+.stat-card-label{font-size:.75rem;letter-spacing:2px;text-transform:uppercase;opacity:.5;font-family:'Cinzel',serif}
+.fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+
+/* Header user avatar */
+.user-btn{
+  position:relative;
+  background:linear-gradient(135deg,var(--gold2),var(--violet));
+  border-radius:50%;
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;
+  color:var(--black);cursor:pointer;transition:.3s;
+  flex-shrink:0;
+}
+.user-btn:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(245,200,66,.3)}
+.user-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;z-index:200;
+  background:var(--black2);border:1px solid rgba(245,200,66,.2);
+  border-radius:10px;padding:8px;min-width:200px;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;transform:translateY(-8px);transition:.2s;
+}
+.user-btn-wrap.open .user-dropdown{opacity:1;pointer-events:all;transform:translateY(0)}
+.user-btn-wrap{position:relative}
+.user-dropdown-name{
+  padding:10px 12px 6px;
+  font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;color:var(--gold);
+}
+.user-dropdown-email{padding:0 12px 10px;font-size:.78rem;color:var(--gray);border-bottom:1px solid rgba(255,255,255,.06)}
+.user-dropdown-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:6px;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;
+  color:rgba(240,238,232,.7);cursor:pointer;transition:.2s;background:none;width:100%;text-align:left;
+}
+.user-dropdown-item:hover{background:rgba(245,200,66,.08);color:var(--white)}
+.user-dropdown-item.danger{color:rgba(230,57,70,.7)}
+.user-dropdown-item.danger:hover{background:rgba(230,57,70,.1);color:var(--red)}
+.btn-login-header{
+  background:transparent;
+  border:1px solid rgba(245,200,66,.3);
+  color:rgba(240,238,232,.8);
+  padding:8px 16px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
+  transition:.3s;
+}
+.btn-login-header:hover{border-color:var(--gold);color:var(--gold)}
+/* ===== CHECKOUT PAGE ===== */
+#checkout{background:var(--black)}
+.checkout-inner{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+
+/* Steps */
+.checkout-steps{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin-bottom:48px;
+}
+.checkout-step{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,238,232,.3);
+  position:relative;
+}
+.checkout-step.active{color:var(--gold)}
+.checkout-step.done{color:rgba(129,199,132,.8)}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid currentColor;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;flex-shrink:0;
+  transition:.3s;
+}
+.checkout-step.active .step-num{background:var(--gold);border-color:var(--gold);color:var(--black)}
+.checkout-step.done .step-num{background:rgba(129,199,132,.15);border-color:rgba(129,199,132,.6);color:#81c784}
+.step-connector{
+  width:60px;height:1px;background:rgba(255,255,255,.1);margin:0 4px;flex-shrink:0;
+}
+.step-connector.done{background:rgba(129,199,132,.4)}
+
+/* Layout */
+.checkout-layout{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start}
+.checkout-form-area{}
+.checkout-sidebar{}
+
+/* Form sections */
+.checkout-section{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;padding:28px;
+  margin-bottom:16px;
+}
+.checkout-section-title{
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:10px;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-row.triple{grid-template-columns:2fr 1fr 1fr}
+.form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.form-field.full{grid-column:1/-1}
+.form-label{
+  font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(240,238,232,.55);
+}
+.form-input{
+  background:var(--black3);
+  border:1px solid rgba(245,200,66,.12);
+  border-radius:6px;padding:11px 14px;
+  color:var(--white);font-family:'Crimson Text',serif;font-size:1rem;
+  transition:.25s;
+}
+.form-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.1)}
+.form-input::placeholder{color:var(--gray)}
+.form-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,.08)}
+.form-input-icon{position:relative}
+.form-input-icon .form-input{padding-left:38px}
+.form-input-icon-sym{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:.95rem;opacity:.4;pointer-events:none;
+}
+.form-select{
+  background:var(--black3);
+  border:1px solid rgba(245,200,66,.12);
+  border-radius:6px;padding:11px 14px;
+  color:var(--white);font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1px;
+  transition:.25s;appearance:none;cursor:pointer;
+}
+.form-select:focus{outline:none;border-color:var(--gold)}
+.form-select option{background:var(--black3)}
+.form-err-msg{font-size:.75rem;color:var(--red);min-height:.9rem;margin-top:2px}
+
+/* Shipping options */
+.shipping-options{display:flex;flex-direction:column;gap:10px}
+.shipping-option{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:8px;
+  border:1.5px solid rgba(255,255,255,.08);
+  cursor:pointer;transition:.2s;
+  position:relative;
+}
+.shipping-option:hover{border-color:rgba(245,200,66,.25)}
+.shipping-option.selected{border-color:var(--gold);background:rgba(245,200,66,.05)}
+.shipping-option input[type=radio]{accent-color:var(--gold);width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.shipping-option-info{flex:1}
+.shipping-option-name{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;margin-bottom:2px}
+.shipping-option-desc{font-size:.8rem;color:var(--gray)}
+.shipping-option-price{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;color:var(--gold)}
+.shipping-option-badge{
+  position:absolute;top:-8px;right:10px;
+  background:var(--cyan);color:var(--black);
+  font-family:'Cinzel',serif;font-size:.55rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:10px;
+}
+
+/* Payment step */
+.checkout-payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.checkout-card-fields{
+  margin-top:20px;padding-top:20px;
+  border-top:1px solid rgba(255,255,255,.06);
+  display:none;
+}
+.checkout-card-fields.visible{display:block}
+.card-number-wrap{position:relative}
+.card-logos{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  display:flex;gap:4px;align-items:center;
+}
+.card-logo-mini{
+  height:20px;border-radius:3px;padding:2px 4px;
+  background:#fff;font-size:.5rem;font-weight:900;
+  display:flex;align-items:center;
+}
+
+/* CTA area */
+.checkout-cta{margin-top:8px}
+.btn-checkout-submit{
+  width:100%;padding:16px;border-radius:8px;
+  font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  transition:.3s;display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-checkout-submit.stripe-cta{background:linear-gradient(135deg,#635BFF,#7c75ff);color:#fff;box-shadow:0 4px 20px rgba(99,91,255,.3)}
+.btn-checkout-submit.paypal-cta{background:linear-gradient(135deg,#003087,#009cde);color:#fff;box-shadow:0 4px 20px rgba(0,156,222,.3)}
+.btn-checkout-submit.applepay-cta{background:#000;color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-checkout-submit.klarna-cta{background:#FFB3C7;color:#1a1a2e;box-shadow:0 4px 20px rgba(255,179,199,.3)}
+.btn-checkout-submit:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn-back-cart{
+  width:100%;padding:12px;margin-top:10px;
+  background:transparent;border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;color:rgba(240,238,232,.5);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+  transition:.3s;
+}
+.btn-back-cart:hover{border-color:rgba(245,200,66,.3);color:var(--gold)}
+
+/* Sidebar */
+.checkout-summary-box{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;padding:24px;position:sticky;top:80px;
+}
+.checkout-summary-title{
+  font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.checkout-summary-items{display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
+.checkout-summary-item{display:flex;align-items:center;gap:10px}
+.checkout-summary-item-img{
+  width:44px;height:54px;object-fit:contain;border-radius:4px;
+  background:var(--black3);padding:2px;flex-shrink:0;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));
+}
+.checkout-summary-item-emoji{width:44px;height:54px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--black3);border-radius:4px;flex-shrink:0}
+.checkout-summary-item-info{flex:1;min-width:0}
+.checkout-summary-item-name{font-family:'Cinzel',serif;font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.checkout-summary-item-sub{font-size:.75rem;color:var(--gray)}
+.checkout-summary-item-price{font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;color:var(--gold);flex-shrink:0}
+.checkout-summary-line{display:flex;justify-content:space-between;font-size:.88rem;margin-bottom:8px}
+.checkout-summary-line.total{
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(245,200,66,.2);
+  font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:1rem;
+}
+.checkout-guarantee{
+  margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);
+  display:flex;flex-direction:column;gap:8px;
+}
+.checkout-guarantee-item{
+  display:flex;align-items:center;gap:8px;font-size:.78rem;color:rgba(240,238,232,.5);
+}
+
+/* Confirmation page */
+.confirm-page{max-width:860px;margin:0 auto}
+.confirm-hero{
+  text-align:center;padding:48px 24px 40px;
+  position:relative;
+}
+.confirm-burst{
+  position:relative;display:inline-block;
+  width:100px;height:100px;margin-bottom:24px;
+}
+.confirm-burst-circle{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(245,200,66,.15),rgba(129,199,132,.1));
+  border:2px solid rgba(129,199,132,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;
+  animation:confirmPop .5s cubic-bezier(.34,1.56,.64,1) both;
+  box-shadow:0 0 40px rgba(129,199,132,.15),0 0 80px rgba(245,200,66,.08);
+}
+@keyframes confirmPop{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.confirm-burst-ring{
+  position:absolute;inset:-8px;border-radius:50%;
+  border:1px solid rgba(129,199,132,.2);
+  animation:ringPulse 2s ease-in-out infinite;
+}
+.confirm-burst-ring2{
+  position:absolute;inset:-18px;border-radius:50%;
+  border:1px solid rgba(245,200,66,.1);
+  animation:ringPulse 2s ease-in-out .4s infinite;
+}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.05);opacity:1}}
+.confirm-title{
+  font-family:'Cinzel Decorative',serif;font-size:clamp(1.4rem,4vw,2.2rem);font-weight:700;
+  background:linear-gradient(135deg,var(--white),var(--gold3),#81c784);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+}
+.confirm-subtitle{font-size:1rem;color:rgba(240,238,232,.55);margin-bottom:20px;line-height:1.6}
+.confirm-order-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2);
+  border-radius:6px;padding:8px 18px;
+  font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:2px;color:var(--gold);
+}
+
+/* Timeline */
+.confirm-timeline{
+  display:flex;align-items:flex-start;justify-content:center;
+  gap:0;margin:32px 0;padding:0 24px;
+  overflow-x:auto;
+}
+.confirm-tl-step{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;flex:1;min-width:80px;max-width:120px;
+  position:relative;
+}
+.confirm-tl-step:not(:last-child)::after{
+  content:'';position:absolute;top:18px;left:60%;right:-40%;
+  height:2px;background:rgba(255,255,255,.08);z-index:0;
+}
+.confirm-tl-step.done:not(:last-child)::after{background:linear-gradient(90deg,rgba(129,199,132,.4),rgba(255,255,255,.08))}
+.confirm-tl-dot{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;position:relative;z-index:1;
+  transition:.3s;
+  border:2px solid rgba(255,255,255,.1);
+  background:var(--black3);
+}
+.confirm-tl-step.done .confirm-tl-dot{
+  background:rgba(129,199,132,.15);border-color:rgba(129,199,132,.5);
+  box-shadow:0 0 12px rgba(129,199,132,.2);
+}
+.confirm-tl-step.active .confirm-tl-dot{
+  background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.5);
+  box-shadow:0 0 12px rgba(245,200,66,.2);
+  animation:tlPulse 1.5s ease-in-out infinite;
+}
+@keyframes tlPulse{0%,100%{box-shadow:0 0 12px rgba(245,200,66,.2)}50%{box-shadow:0 0 20px rgba(245,200,66,.4)}}
+.confirm-tl-label{
+  font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:1px;text-transform:uppercase;
+  margin-top:8px;color:rgba(240,238,232,.4);line-height:1.4;
+}
+.confirm-tl-step.done .confirm-tl-label{color:rgba(129,199,132,.7)}
+.confirm-tl-step.active .confirm-tl-label{color:var(--gold)}
+.confirm-tl-date{font-size:.65rem;color:rgba(240,238,232,.3);margin-top:2px;font-family:'Crimson Text',serif}
+
+/* Body layout */
+.confirm-body{
+  display:grid;grid-template-columns:1fr 340px;gap:24px;
+  padding:0 0 80px;align-items:start;
+}
+.confirm-section{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;padding:24px;margin-bottom:16px;
+}
+.confirm-section:last-child{margin-bottom:0}
+.confirm-section-title{
+  font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;gap:8px;
+}
+.confirm-items{display:flex;flex-direction:column;gap:14px}
+.confirm-item{display:flex;align-items:center;gap:14px}
+.confirm-item-img{
+  width:56px;height:70px;object-fit:contain;border-radius:6px;
+  background:var(--black3);padding:3px;flex-shrink:0;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.5));
+}
+.confirm-item-emoji{
+  width:56px;height:70px;display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;background:var(--black3);border-radius:6px;flex-shrink:0;
+}
+.confirm-item-info{flex:1;min-width:0}
+.confirm-item-name{
+  font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;
+}
+.confirm-item-meta{font-size:.78rem;color:var(--gray);display:flex;gap:10px;flex-wrap:wrap}
+.confirm-item-rarity{
+  padding:1px 7px;border-radius:10px;font-size:.65rem;font-family:'Cinzel',serif;
+}
+.confirm-item-subtotal{
+  font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;
+  color:var(--gold);flex-shrink:0;text-align:right;
+}
+.confirm-item-qty{
+  font-size:.75rem;color:rgba(240,238,232,.4);
+  display:block;margin-top:2px;text-align:right;
+}
+.confirm-totals{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+.confirm-total-line{display:flex;justify-content:space-between;font-size:.9rem}
+.confirm-total-line.main{
+  font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--gold);
+  padding-top:10px;margin-top:2px;border-top:1px solid rgba(245,200,66,.2);
+}
+.confirm-total-line.discount{color:#81c784}
+
+/* Sidebar cards */
+.confirm-info-card{
+  background:var(--black2);border:1px solid rgba(245,200,66,.1);
+  border-radius:12px;padding:20px;margin-bottom:16px;
+}
+.confirm-info-card:last-child{margin-bottom:0}
+.confirm-info-label{
+  font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);opacity:.8;margin-bottom:12px;
+}
+.confirm-info-body{font-size:.9rem;line-height:1.8;color:rgba(240,238,232,.7)}
+.confirm-pm-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:6px;margin-top:4px;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1px;
+}
+.confirm-pm-stripe{background:rgba(99,91,255,.12);border:1px solid rgba(99,91,255,.25);color:#a09fff}
+.confirm-pm-paypal{background:rgba(0,156,222,.1);border:1px solid rgba(0,156,222,.2);color:#4fc3f7}
+.confirm-pm-applepay{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#fff}
+.confirm-pm-klarna{background:rgba(255,179,199,.08);border:1px solid rgba(255,179,199,.2);color:#FFB3C7}
+.confirm-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.confirm-eta{
+  background:rgba(129,199,132,.06);border:1px solid rgba(129,199,132,.15);
+  border-radius:8px;padding:14px 16px;margin-top:8px;
+  font-size:.85rem;color:rgba(129,199,132,.8);line-height:1.6;
+  display:flex;gap:10px;align-items:flex-start;
+}
+
+@media(max-width:760px){
+  .confirm-body{grid-template-columns:1fr}
+  .confirm-timeline{gap:0;padding:0 8px}
+}
+
+@media(max-width:900px){
+  .checkout-layout{grid-template-columns:1fr}
+  .checkout-sidebar{order:-1}
+  .checkout-summary-box{position:static}
+}
+@media(max-width:560px){
+  .form-row{grid-template-columns:1fr}
+  .form-row.triple{grid-template-columns:1fr 1fr}
+  .checkout-payment-methods{grid-template-columns:1fr 1fr}
+}
+/* ===== FOOTER ===== */
+footer{
+  background:var(--black2);
+  border-top:1px solid rgba(245,200,66,.1);
+  padding:64px 24px 32px;
+}
+.footer-grid{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:40px;
+  margin-bottom:48px;
+}
+.footer-brand .logo{font-size:1.2rem;margin-bottom:12px;display:block}
+.footer-brand p{font-size:.9rem;color:rgba(240,238,232,.5);line-height:1.7;max-width:260px}
+.footer-col-title{
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);opacity:.8;margin-bottom:16px;
+}
+.footer-links{display:flex;flex-direction:column;gap:10px}
+.footer-links a{
+  font-size:.9rem;color:rgba(240,238,232,.55);transition:.3s;cursor:pointer;
+}
+.footer-links a:hover{color:var(--gold);opacity:1}
+.newsletter-wrap{margin-top:4px}
+.newsletter-form{display:flex;gap:8px;margin-top:12px}
+.newsletter-input{
+  flex:1;background:var(--black3);
+  border:1px solid rgba(245,200,66,.2);border-radius:4px;
+  padding:10px 14px;color:var(--white);
+  font-family:'Crimson Text',serif;font-size:.9rem;
+}
+.newsletter-input:focus{outline:none;border-color:var(--gold)}
+.newsletter-input::placeholder{color:var(--gray)}
+.btn-newsletter{
+  background:var(--gold2);color:var(--black);
+  padding:10px 16px;border-radius:4px;
+  font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;letter-spacing:1px;
+  transition:.3s;
+}
+.btn-newsletter:hover{background:var(--gold)}
+.newsletter-sub{font-size:.78rem;color:rgba(240,238,232,.4);margin-top:8px}
+.social-links{display:flex;gap:12px;margin-top:16px}
+.social-link{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--black3);border:1px solid rgba(245,200,66,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;transition:.3s;cursor:pointer;
+}
+.social-link:hover{border-color:var(--gold);background:rgba(245,200,66,.1)}
+.footer-bottom{
+  max-width:1200px;margin:0 auto;
+  padding-top:24px;border-top:1px solid rgba(255,255,255,.06);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-size:.78rem;color:rgba(240,238,232,.35);
+}
+.footer-bottom a{color:rgba(240,238,232,.35);transition:.3s}
+.footer-bottom a:hover{color:var(--gold)}
+
+/* ===== CHECKOUT MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  opacity:0;pointer-events:none;transition:.3s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--black2);
+  border:1px solid rgba(245,200,66,.2);
+  border-radius:16px;padding:40px;
+  max-width:480px;width:100%;
+  text-align:center;
+  transform:scale(.9);transition:.3s;
+}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-icon{font-size:4rem;margin-bottom:16px;display:block}
+.modal-title{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--gold);margin-bottom:12px}
+.modal-text{color:rgba(240,238,232,.7);line-height:1.7;margin-bottom:24px}
+.btn-modal-close{
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:var(--black);padding:12px 32px;border-radius:6px;
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;letter-spacing:2px;
+  transition:.3s;
+}
+.btn-modal-close:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,200,66,.4)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .product-layout{grid-template-columns:1fr}
+  .cart-layout{grid-template-columns:1fr}
+  .cart-summary{position:static}
+}
+@media(max-width:640px){
+  nav{display:none}
+  .hamburger{display:flex}
+  .cart-btn span:not(.cart-count){display:none}
+  .cart-btn{padding:8px 12px}
+  .hero-cards .hero-card{display:none}
+  .hero-cards .hero-card:first-child{display:block}
+  .footer-grid{grid-template-columns:1fr}
+  .cards-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .product-stats{grid-template-columns:1fr 1fr}
+}
+/* SECTION TRANSITIONS */
+.page{animation:pageIn .4s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== GUEST MODAL ===== */
+.guest-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .25s}
+.guest-overlay.open{opacity:1;pointer-events:all}
+.guest-modal{background:var(--black2);border:1px solid rgba(245,200,66,.18);border-radius:16px;padding:36px 32px;max-width:400px;width:100%;position:relative;transform:translateY(24px);transition:transform .3s}
+.guest-overlay.open .guest-modal{transform:translateY(0)}
+.guest-modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(240,238,232,.3);font-size:1.1rem;cursor:pointer;transition:.2s;padding:4px}
+.guest-modal-close:hover{color:var(--white)}
+.guest-modal-icon{font-size:2.2rem;margin-bottom:12px}
+.guest-modal-title{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;letter-spacing:.5px}
+.guest-modal-sub{font-size:.88rem;color:rgba(240,238,232,.55);margin-bottom:22px;line-height:1.6}
+.guest-modal-input{width:100%;background:var(--black3);border:1px solid rgba(255,255,255,.1);color:var(--white);border-radius:8px;padding:11px 14px;font-size:.95rem;font-family:'Crimson Text',serif;transition:.2s}
+.guest-modal-input:focus{outline:none;border-color:rgba(245,200,66,.45);background:rgba(245,200,66,.03)}
+.guest-modal-err{font-size:.78rem;color:var(--red);min-height:20px;margin:6px 0 8px}
+.btn-claim{width:100%;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1.5px;padding:13px;border-radius:8px;font-weight:700;transition:.2s}
+.btn-claim:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,200,66,.3)}
+.guest-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:rgba(240,238,232,.25);font-size:.78rem}
+.guest-divider::before,.guest-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.btn-guest-skip{width:100%;background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(240,238,232,.5);font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:1.5px;padding:12px;border-radius:8px;transition:.2s}
+.btn-guest-skip:hover{border-color:rgba(255,255,255,.25);color:var(--white)}
+
+/* ===== ADMIN ===== */
+#admin{background:var(--black);padding-top:80px;min-height:100vh}
+.admin-inner{max-width:1160px;margin:0 auto;padding:48px 32px 100px}
+.admin-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px;gap:16px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid rgba(245,200,66,.12)}
+.admin-title{font-family:'Cinzel',serif;font-size:1.5rem;color:var(--gold);letter-spacing:3px}
+.admin-subtitle{font-size:.82rem;color:rgba(240,238,232,.35);margin-top:6px;font-style:italic;letter-spacing:.3px}
+.admin-save-all{background:var(--gold);color:var(--black);font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1.5px;padding:10px 22px;border-radius:6px;font-weight:700;transition:.2s;flex-shrink:0}
+.admin-save-all:hover{background:var(--gold3);transform:translateY(-2px)}
+.admin-scroll{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.015)}
+.admin-table{width:100%;border-collapse:collapse;min-width:860px}
+.admin-table th{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:2px;color:rgba(240,238,232,.4);text-align:left;padding:14px 16px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07);white-space:nowrap}
+.admin-row{border-bottom:1px solid rgba(255,255,255,.035);transition:background .15s}
+.admin-row:hover{background:rgba(245,200,66,.03)}
+.admin-cell{padding:12px 14px;vertical-align:top}
+.admin-img-wrap{width:56px;height:76px;background:var(--black2);border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.admin-img-wrap img{width:100%;height:100%;object-fit:contain}
+.admin-emoji-fallback{font-size:1.6rem}
+.admin-input{background:var(--black3);border:1px solid rgba(255,255,255,.08);color:var(--white);border-radius:6px;padding:7px 10px;font-family:'Crimson Text',serif;font-size:.9rem;width:100%;transition:.2s}
+.admin-input:focus{outline:none;border-color:rgba(245,200,66,.5);background:rgba(245,200,66,.03)}
+.admin-textarea{resize:vertical;min-height:64px;line-height:1.5}
+.admin-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.admin-file-label{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.12);color:rgba(240,238,232,.45);border-radius:6px;padding:7px 11px;font-size:.78rem;cursor:pointer;transition:.2s;white-space:nowrap;font-family:'Cinzel',serif;letter-spacing:.5px}
+.admin-file-label:hover{border-color:rgba(245,200,66,.4);color:var(--gold)}
+.admin-file-input{display:none}
+.admin-btn-save{background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.25);color:var(--gold);font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:1.5px;padding:8px 16px;border-radius:6px;transition:.2s;white-space:nowrap}
+.admin-btn-save:hover{background:var(--gold);color:var(--black)}
+.admin-btn-save.saved{background:rgba(129,199,132,.12);border-color:rgba(129,199,132,.4);color:#81c784;pointer-events:none}
+.admin-id{display:inline-block;background:rgba(255,255,255,.05);border-radius:4px;padding:2px 8px;font-size:.68rem;font-family:'Cinzel',serif;color:rgba(240,238,232,.3);letter-spacing:1px}
+.btn-admin-header{background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.3);color:var(--gold);font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:1.5px;padding:8px 16px;border-radius:6px;transition:.2s}
+.btn-admin-header:hover{background:rgba(245,200,66,.22);border-color:rgba(245,200,66,.6)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="header">
+  <div class="logo" onclick="navigate('home')">
+    <svg class="logo-ball" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M1.5 10h17" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="10" cy="10" r="2.8" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="10" cy="10" r="1.1" fill="currentColor"/>
+    </svg>
+    PokeVault
+  </div>
+  <nav>
+    <a href="#" onclick="navigate('home')" data-page="home">Accueil</a>
+    <a href="#" onclick="navigate('catalogue')" data-page="catalogue">Catalogue</a>
+    <a href="#" onclick="navigate('about')" data-page="about">À propos</a>
+    <a href="#" id="navLoginLink" onclick="navigate('auth');return false;" style="display:none">Connexion</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="search-btn" onclick="openSearch()" title="Rechercher (Ctrl+K)">
+      <span>🔍</span><span class="search-btn-label">Rechercher</span>
+    </button>
+    <div id="headerAuthZone"></div>
+    <button class="cart-btn" onclick="navigate('cart')">
+      <span>🛒</span><span>Panier</span>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+    <div class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+<div class="mobile-nav" id="mobileNav">
+  <a href="#" onclick="navigate('home');toggleMobileNav()">Accueil</a>
+  <a href="#" onclick="navigate('catalogue');toggleMobileNav()">Catalogue</a>
+  <a href="#" onclick="navigate('about');toggleMobileNav()">À propos</a>
+  <a href="#" onclick="navigate('cart');toggleMobileNav()">Panier</a>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- GLOBAL SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="onOverlayClick(event)">
+  <div class="search-overlay-inner">
+    <div class="search-overlay-bar">
+      <span class="search-overlay-icon">🔍</span>
+      <input
+        type="text"
+        id="globalSearchInput"
+        class="search-overlay-input"
+        placeholder="Rechercher une carte Pokémon…"
+        oninput="liveSearch()"
+        onkeydown="searchKeyNav(event)"
+        autocomplete="off"
+      >
+      <button class="search-overlay-clear" onclick="clearGlobalSearch()" title="Effacer">×</button>
+    </div>
+    <div class="search-overlay-hint">↑↓ Naviguer &nbsp;·&nbsp; Entrée Ouvrir &nbsp;·&nbsp; Échap Fermer</div>
+    <div id="searchResultsContainer"></div>
+  </div>
+</div>
+
+<!-- ===== HOME ===== -->
+<div id="home" class="page active">
+  <div class="hero" id="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Central clash beam -->
+    <div class="hero-clash"></div>
+
+    <!-- Lightning bolts — Zekrom side -->
+    <div class="lightning-wrap" id="lightningWrap"></div>
+
+    <!-- Flames — Reshiram side -->
+    <div class="flame-wrap" id="flameWrap"></div>
+
+    <!-- Zekrom (left — black electric dragon) -->
+    <svg class="hero-zekrom" viewBox="0 0 280 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="zBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1e1e38"/>
+          <stop offset="100%" stop-color="#06060f"/>
+        </linearGradient>
+        <linearGradient id="zWing" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#0a0a1c"/>
+          <stop offset="100%" stop-color="#161628"/>
+        </linearGradient>
+      </defs>
+      <!-- Left wing (mechanical, swept back) -->
+      <path d="M85,190 L0,115 L12,65 L35,170 L70,210 Z" fill="url(#zWing)"/>
+      <path d="M85,190 L0,115 L20,150 L60,195 Z" fill="rgba(0,160,255,0.12)"/>
+      <line x1="4" y1="115" x2="68" y2="208" stroke="#0077bb" stroke-width="1" opacity="0.6"/>
+      <line x1="14" y1="68" x2="57" y2="195" stroke="#0077bb" stroke-width="1" opacity="0.35"/>
+      <!-- Body -->
+      <path d="M100,90 L180,90 L200,145 L210,235 L198,325 L178,375 L140,395 L110,375 L88,325 L76,235 L86,145 Z" fill="url(#zBody)"/>
+      <!-- Chest plate -->
+      <path d="M120,175 L160,175 L168,220 L140,232 L112,220 Z" fill="rgba(0,100,200,0.14)"/>
+      <!-- Head (angular) -->
+      <path d="M105,88 L140,38 L175,88 Z" fill="#10101e"/>
+      <!-- Crest/spike -->
+      <path d="M134,38 L140,12 L146,38 Z" fill="#1c1c32"/>
+      <!-- Eyes (electric blue) -->
+      <ellipse cx="122" cy="72" rx="9" ry="11" fill="#00ccff"/>
+      <ellipse cx="158" cy="72" rx="9" ry="11" fill="#00ccff"/>
+      <ellipse cx="122" cy="72" rx="4" ry="5" fill="#ffffff"/>
+      <ellipse cx="158" cy="72" rx="4" ry="5" fill="#ffffff"/>
+      <!-- Right arm (toward center) -->
+      <path d="M196,218 L255,182 L268,212 L242,232 L206,242 Z" fill="#0d0d1e"/>
+      <!-- Claws -->
+      <path d="M255,182 L278,166 L272,185" stroke="#0088cc" stroke-width="1.5" fill="none" opacity="0.8"/>
+      <path d="M263,195 L284,185 L278,204" stroke="#0088cc" stroke-width="1.5" fill="none" opacity="0.6"/>
+      <!-- Legs -->
+      <path d="M100,365 L82,395 L92,438 L116,442 L126,395 L118,365 Z" fill="#0b0b1c"/>
+      <path d="M158,365 L158,395 L170,442 L194,438 L198,395 L182,365 Z" fill="#0b0b1c"/>
+      <!-- Claw feet -->
+      <path d="M82,438 L68,456 M92,442 L84,460 M116,442 L112,462" stroke="#0088cc" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+      <!-- Electric tail coil -->
+      <ellipse cx="140" cy="455" rx="32" ry="21" fill="none" stroke="#0e0e22" stroke-width="16"/>
+      <ellipse cx="140" cy="455" rx="32" ry="21" fill="none" stroke="#0066bb" stroke-width="2" opacity="0.9"/>
+      <ellipse cx="140" cy="468" rx="21" ry="13" fill="none" stroke="#0c0c1e" stroke-width="12"/>
+      <ellipse cx="140" cy="468" rx="21" ry="13" fill="none" stroke="#0066bb" stroke-width="2" opacity="0.7"/>
+      <!-- Electric spark bolts -->
+      <path d="M215,300 L228,292 L221,307 L236,299 L227,315" stroke="#00aaff" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M232,210 L242,204 L236,218 L248,212" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+      <path d="M240,260 L252,253 L245,268" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    </svg>
+
+    <!-- Reshiram (right — white fire dragon) -->
+    <svg class="hero-reshiram" viewBox="0 0 280 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="rBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#ccc8b0"/>
+        </linearGradient>
+        <linearGradient id="rWing" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stop-color="#f4f0e0"/>
+          <stop offset="100%" stop-color="#e8e4d0"/>
+        </linearGradient>
+      </defs>
+      <!-- Right wing (feathery, facing left/center) -->
+      <path d="M195,190 L280,115 L268,65 L245,170 L210,210 Z" fill="url(#rWing)"/>
+      <path d="M195,190 L280,115 L260,150 L220,195 Z" fill="rgba(255,180,80,0.18)"/>
+      <!-- Feather lines -->
+      <line x1="276" y1="115" x2="212" y2="208" stroke="#ffaa44" stroke-width="1" opacity="0.5"/>
+      <line x1="266" y1="68" x2="223" y2="195" stroke="#ffaa44" stroke-width="1" opacity="0.3"/>
+      <line x1="254" y1="90" x2="230" y2="192" stroke="#ffaa44" stroke-width="1" opacity="0.2"/>
+      <!-- Body -->
+      <path d="M100,90 L180,90 L200,145 L210,235 L198,325 L178,375 L140,395 L110,375 L88,325 L76,235 L86,145 Z" fill="url(#rBody)"/>
+      <!-- Chest fire marking -->
+      <path d="M126,168 L140,148 L154,168 L146,205 L134,205 Z" fill="rgba(255,90,0,0.18)"/>
+      <!-- Head (facing left) -->
+      <path d="M105,88 L140,38 L175,88 Z" fill="#f0ede0"/>
+      <!-- Beak (pointing left toward center) -->
+      <path d="M105,65 L60,58 L105,78 Z" fill="#e8e4d0"/>
+      <!-- Crown spikes -->
+      <path d="M128,38 L122,12 L134,38 Z" fill="#f0ede0"/>
+      <path d="M140,36 L140,8 L150,36 Z" fill="#f4f0e4"/>
+      <path d="M152,40 L158,16 L162,40 Z" fill="#eceae0"/>
+      <!-- Eyes (fire red, on left-facing head) -->
+      <ellipse cx="118" cy="72" rx="9" ry="11" fill="#ff3300"/>
+      <ellipse cx="156" cy="72" rx="9" ry="11" fill="#ff3300"/>
+      <ellipse cx="118" cy="72" rx="4" ry="5" fill="#ffcc00"/>
+      <ellipse cx="156" cy="72" rx="4" ry="5" fill="#ffcc00"/>
+      <!-- Left arm (toward center) -->
+      <path d="M84,218 L25,182 L12,212 L38,232 L74,242 Z" fill="#e8e4d4"/>
+      <!-- Claws -->
+      <path d="M25,182 L2,166 L8,185" stroke="#ffaa44" stroke-width="1.5" fill="none" opacity="0.8"/>
+      <path d="M17,195 L-4,185 L2,204" stroke="#ffaa44" stroke-width="1.5" fill="none" opacity="0.6"/>
+      <!-- Legs -->
+      <path d="M100,365 L82,395 L92,438 L116,442 L126,395 L118,365 Z" fill="#d8d4c0"/>
+      <path d="M158,365 L158,395 L170,442 L194,438 L198,395 L182,365 Z" fill="#d8d4c0"/>
+      <!-- Claw feet -->
+      <path d="M82,438 L68,456 M92,442 L84,460 M116,442 L112,462" stroke="#ffaa44" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <!-- Turbine tail -->
+      <ellipse cx="140" cy="452" rx="30" ry="20" fill="none" stroke="#d8d4c0" stroke-width="16"/>
+      <ellipse cx="140" cy="452" rx="30" ry="20" fill="none" stroke="#ff8800" stroke-width="2" opacity="0.85"/>
+      <ellipse cx="140" cy="466" rx="19" ry="12" fill="none" stroke="#ccc8b8" stroke-width="12"/>
+      <ellipse cx="140" cy="466" rx="19" ry="12" fill="none" stroke="#ff6600" stroke-width="2" opacity="0.7"/>
+      <!-- Flame wisps from tail -->
+      <path d="M115,450 Q98,432 104,414 Q92,436 98,460" fill="rgba(255,100,0,0.5)"/>
+      <path d="M165,450 Q182,432 176,414 Q188,436 182,460" fill="rgba(255,80,0,0.45)"/>
+      <path d="M128,440 Q115,420 120,402 Q108,425 115,448" fill="rgba(255,140,0,0.35)"/>
+      <!-- Body flame wisps -->
+      <path d="M60,255 Q44,237 50,220 Q38,242 46,264" fill="rgba(255,110,0,0.38)"/>
+      <path d="M52,295 Q38,276 44,258 Q33,280 40,302" fill="rgba(255,90,0,0.3)"/>
+    </svg>
+
+    <!-- Hero content (center, above dragons) -->
+    <div class="hero-content">
+      <div class="hero-eyebrow">Légendaires · Authentifiés · Rares</div>
+      <h1 class="hero-title">PokeVault</h1>
+      <div class="hero-sub">Noir &amp; Blanc · La Collection Légendaire</div>
+      <p class="hero-desc">Entre la foudre de Zekrom et les flammes de Reshiram, découvrez les cartes les plus rares de l'univers Pokémon.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="navigate('catalogue')">Explorer le Catalogue</button>
+        <button class="btn-secondary" onclick="navigate('about')">Notre Histoire</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Cartes disponibles</span></div>
+        <div class="stat"><span class="stat-num">12k+</span><span class="stat-label">Clients satisfaits</span></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Authentifiées</span></div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Défiler</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </div>
+
+  <div class="features-strip">
+    <div class="feature"><span class="feature-icon">🔐</span>Cartes certifiées authentiques</div>
+    <div class="feature"><span class="feature-icon">📦</span>Emballage protégé premium</div>
+    <div class="feature"><span class="feature-icon">⚡</span>Livraison express 24h</div>
+    <div class="feature"><span class="feature-icon">↩️</span>Retour 14 jours</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Sélection du Moment</div>
+      <div class="section-title">Cartes en Vedette</div>
+    </div>
+    <div class="cards-grid" id="featuredGrid"></div>
+    <div style="text-align:center;margin-top:40px">
+      <button class="btn-primary" onclick="navigate('catalogue')">Voir tout le catalogue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CATALOGUE ===== -->
+<div id="catalogue" class="page">
+  <div class="catalogue-inner">
+    <div class="catalogue-header">
+      <div>
+        <div class="catalogue-title">Catalogue</div>
+        <div class="catalogue-count" id="catalogueCount">12 cartes</div>
+      </div>
+    </div>
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Rechercher une carte…" oninput="applyFilters()">
+      </div>
+      <select class="filter-select" id="filterRarity" onchange="applyFilters()">
+        <option value="">Type de carte</option>
+        <option value="Loose">Loose</option>
+        <option value="PSA">PSA</option>
+        <option value="PCA">PCA</option>
+        <option value="CCC">CCC</option>
+      </select>
+      <select class="filter-select" id="filterSerie" onchange="applyFilters()">
+        <option value="">Série</option>
+        <option value="Noir et Blanc">Noir et Blanc</option>
+        <option value="Soleil et Lune">Soleil et Lune</option>
+        <option value="XY">XY</option>
+        <option value="Épée et Bouclier">Épée et Bouclier</option>
+      </select>
+      <select class="filter-select" id="filterSort" onchange="applyFilters()">
+        <option value="default">Tri par défaut</option>
+        <option value="price-asc">Prix croissant</option>
+        <option value="price-desc">Prix décroissant</option>
+        <option value="name-asc">Nom A→Z</option>
+      </select>
+    </div>
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="cards-grid" id="catalogueGrid"></div>
+  </div>
+</div>
+
+<!-- ===== PRODUCT ===== -->
+<div id="product" class="page">
+  <div class="product-inner">
+    <div class="product-back" onclick="navigate('catalogue')">← Retour au catalogue</div>
+    <div class="product-layout" id="productLayout"></div>
+  </div>
+</div>
+
+<!-- ===== CART ===== -->
+<div id="cart" class="page">
+  <div class="cart-inner">
+    <div class="cart-title">Mon Panier</div>
+    <div class="cart-layout">
+      <div id="cartItemsContainer"></div>
+      <div class="cart-summary" id="cartSummary">
+        <div class="summary-title">Récapitulatif</div>
+        <div class="summary-line"><span>Sous-total</span><span id="subtotalVal">0,00 €</span></div>
+        <div class="summary-line"><span>Livraison</span><span id="shippingVal">—</span></div>
+        <div class="summary-line" id="discountLine" style="display:none;color:#81c784"><span>Réduction</span><span id="discountVal"></span></div>
+        <div class="summary-line total"><span>Total</span><span id="totalVal">0,00 €</span></div>
+        <div class="promo-wrap">
+          <input type="text" class="promo-input" id="promoInput" placeholder="Code promo">
+          <button class="btn-promo" onclick="applyPromo()">Appliquer</button>
+        </div>
+        <div class="promo-msg" id="promoMsg"></div>
+
+        <!-- PAYMENT METHODS -->
+        <div class="payment-divider">Mode de paiement</div>
+        <div class="pm-list">
+          <div class="pm-row selected" data-method="stripe" onclick="selectPayment('stripe')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-stripe">stripe</div>
+              <div class="pm-desc">Carte bancaire</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-visa">VISA</span>
+              <span class="pm-icon pm-icon-mc">MC</span>
+              <span class="pm-icon pm-icon-cb">CB</span>
+            </div>
+          </div>
+          <div class="pm-row" data-method="paypal" onclick="selectPayment('paypal')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-paypal"><span class="pp-dark">Pay</span><span class="pp-blue">Pal</span></div>
+              <div class="pm-desc">Paiement sécurisé PayPal</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-pp">PP</span>
+            </div>
+          </div>
+          <div class="pm-row" data-method="applepay" onclick="selectPayment('applepay')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-applepay"> Pay</div>
+              <div class="pm-desc">Apple Pay</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-ap"> Pay</span>
+            </div>
+          </div>
+          <div class="pm-row" data-method="klarna" onclick="selectPayment('klarna')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-klarna">klarna.<span class="pm-badge-3x">3×</span></div>
+              <div class="pm-desc">Payer en 3× sans frais</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-kl">KL</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-pay stripe-cta" id="checkoutBtn" onclick="handlePayment()">
+          <span id="payBtnIcon">💳</span>
+          <span id="payBtnLabel">Payer par carte</span>
+        </button>
+        <div class="secure-badges">
+          <span>🔒 SSL 256-bit</span><span>🛡️ 3D Secure</span><span>📦 Emballage protégé</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT ===== -->
+<div id="checkout" class="page">
+  <div class="checkout-inner">
+
+    <!-- Steps -->
+    <div class="checkout-steps" id="checkoutSteps">
+      <div class="checkout-step active" id="step-ind-1">
+        <div class="step-num">1</div><span>Livraison</span>
+      </div>
+      <div class="step-connector" id="conn-1"></div>
+      <div class="checkout-step" id="step-ind-2">
+        <div class="step-num">2</div><span>Paiement</span>
+      </div>
+      <div class="step-connector" id="conn-2"></div>
+      <div class="checkout-step" id="step-ind-3">
+        <div class="step-num">3</div><span>Confirmation</span>
+      </div>
+    </div>
+
+    <div class="checkout-layout" id="checkoutLayout">
+      <!-- LEFT: form -->
+      <div class="checkout-form-area" id="checkoutFormArea"></div>
+
+      <!-- RIGHT: summary -->
+      <div class="checkout-sidebar" id="checkoutSidebarWrap">
+        <div class="checkout-summary-box">
+          <div class="checkout-summary-title">Votre commande</div>
+          <div class="checkout-summary-items" id="checkoutSummaryItems"></div>
+          <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:14px">
+            <div class="checkout-summary-line"><span>Sous-total</span><span id="coSubtotal">—</span></div>
+            <div class="checkout-summary-line"><span>Livraison</span><span id="coShipping">—</span></div>
+            <div class="checkout-summary-line" id="coDiscountLine" style="display:none;color:#81c784"><span>Réduction</span><span id="coDiscount">—</span></div>
+            <div class="checkout-summary-line total"><span>Total</span><span id="coTotal">—</span></div>
+          </div>
+          <div class="checkout-guarantee">
+            <div class="checkout-guarantee-item">🔐 Cartes 100% authentifiées</div>
+            <div class="checkout-guarantee-item">📦 Emballage premium protégé</div>
+            <div class="checkout-guarantee-item">↩️ Retour gratuit sous 14 jours</div>
+            <div class="checkout-guarantee-item">🔒 Paiement SSL 256-bit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== ABOUT ===== -->
+<div id="about" class="page">
+  <div class="about-inner">
+    <div class="about-hero">
+      <div class="about-title">Notre Histoire</div>
+      <p class="about-lead">PokeVault est né d'une passion pour les cartes Pokémon et d'une volonté d'offrir une expérience d'achat digne des cartes les plus rares.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card"><span class="about-card-icon">🏅</span><div class="about-card-title">Authenticité Garantie</div><p class="about-card-text">Chaque carte est vérifiée par nos experts en TCG. Nous ne vendons que des cartes 100% authentiques, avec certificat de conformité.</p></div>
+      <div class="about-card"><span class="about-card-icon">📦</span><div class="about-card-title">Emballage Protecteur</div><p class="about-card-text">Topmloader rigide, sleeve de protection, mousse anti-choc et boîte renforcée. Votre carte arrive dans un état parfait, toujours.</p></div>
+      <div class="about-card"><span class="about-card-icon">⚡</span><div class="about-card-title">Expédition Rapide</div><p class="about-card-text">Commandes traitées en 24h. Livraison suivie express avec numéro de tracking. Disponible en France et Europe.</p></div>
+      <div class="about-card"><span class="about-card-icon">💎</span><div class="about-card-title">Sélection Premium</div><p class="about-card-text">Nous sourceons les raretés directement auprès de collectionneurs confirmés et des dernières extensions TCG mondiales.</p></div>
+      <div class="about-card"><span class="about-card-icon">🤝</span><div class="about-card-title">Service Client</div><p class="about-card-text">Une équipe passionnée disponible 7j/7 par chat ou email. Retours acceptés 14 jours après réception sans frais cachés.</p></div>
+      <div class="about-card"><span class="about-card-icon">🌍</span><div class="about-card-title">Communauté</div><p class="about-card-text">Plus de 12 000 collectionneurs nous font confiance. Rejoignez la communauté PokeVault sur Discord et Instagram.</p></div>
+    </div>
+    <div class="about-story">
+      <div class="about-story-title">L'Histoire de PokeVault</div>
+      <p>Fondé en 2019 par deux collectionneurs passionnés depuis l'enfance, PokeVault est parti d'un constat simple : il était trop difficile de trouver des cartes rares authentifiées et en excellent état sans prendre de risques.</p>
+      <p>Après des années à fréquenter conventions, tournois et marchés aux puces, nous avons développé un réseau unique de fournisseurs fiables et une expertise de grading reconnue dans la communauté française du TCG Pokémon.</p>
+      <p>Aujourd'hui, PokeVault est la référence premium pour les collectionneurs sérieux : des cartes exceptionnelles, un service irréprochable, et une vraie passion commune pour l'univers Pokémon.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AUTH ===== -->
+<div id="auth" class="page">
+  <div class="auth-wrap">
+    <div class="auth-logo">PokeVault</div>
+    <div class="auth-tagline">La référence des cartes Pokémon rares</div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Connexion</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Créer un compte</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form class="auth-form active" id="formLogin" onsubmit="submitLogin(event)">
+        <div class="auth-field">
+          <label class="auth-label">Adresse e-mail</label>
+          <input type="email" class="auth-input" id="loginEmail" placeholder="vous@email.com" required>
+          <span class="auth-error" id="loginEmailErr"></span>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Mot de passe</label>
+          <input type="password" class="auth-input" id="loginPassword" placeholder="••••••••" required>
+          <span class="auth-error" id="loginPasswordErr"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label class="auth-remember">
+            <input type="checkbox" id="loginRemember"> Se souvenir de moi
+          </label>
+          <span class="auth-forgot" onclick="showForgotToast()">Mot de passe oublié ?</span>
+        </div>
+        <button type="submit" class="btn-auth">Se connecter</button>
+        <div class="auth-divider">ou continuer avec</div>
+        <div class="auth-social">
+          <button type="button" class="btn-social" onclick="socialLogin('Google')">🌐 Google</button>
+          <button type="button" class="btn-social" onclick="socialLogin('Discord')">💬 Discord</button>
+        </div>
+      </form>
+
+      <!-- REGISTER -->
+      <form class="auth-form" id="formRegister" onsubmit="submitRegister(event)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="auth-field">
+            <label class="auth-label">Prénom</label>
+            <input type="text" class="auth-input" id="regFirstName" placeholder="Sacha" required>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label">Nom</label>
+            <input type="text" class="auth-input" id="regLastName" placeholder="Ketchum" required>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Adresse e-mail</label>
+          <input type="email" class="auth-input" id="regEmail" placeholder="vous@email.com" required>
+          <span class="auth-error" id="regEmailErr"></span>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Mot de passe</label>
+          <input type="password" class="auth-input" id="regPassword" placeholder="8 caractères minimum" required oninput="checkPasswordStrength(this.value)">
+          <div class="auth-strength"><div class="auth-strength-bar" id="strengthBar" style="width:0%"></div></div>
+          <span class="auth-strength-label" id="strengthLabel" style="color:var(--gray)"></span>
+          <span class="auth-error" id="regPasswordErr"></span>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Confirmer le mot de passe</label>
+          <input type="password" class="auth-input" id="regConfirm" placeholder="••••••••" required>
+          <span class="auth-error" id="regConfirmErr"></span>
+        </div>
+        <button type="submit" class="btn-auth">Créer mon compte</button>
+        <div class="auth-divider">ou continuer avec</div>
+        <div class="auth-social">
+          <button type="button" class="btn-social" onclick="socialLogin('Google')">🌐 Google</button>
+          <button type="button" class="btn-social" onclick="socialLogin('Discord')">💬 Discord</button>
+        </div>
+      </form>
+    </div>
+    <div class="auth-footer-text" style="margin-top:20px">
+      En continuant, vous acceptez nos <a>CGV</a> et notre <a>Politique de confidentialité</a>.
+    </div>
+  </div>
+</div>
+
+<!-- ===== ACCOUNT ===== -->
+<div id="account" class="page">
+  <div class="account-inner" id="accountInner"></div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div id="admin" class="page">
+  <div class="admin-inner">
+    <div class="admin-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <button onclick="navigate(previousPage==='auth'?'home':previousPage)" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(240,238,232,.6);border-radius:6px;padding:7px 14px;font-size:.75rem;font-family:'Cinzel',serif;letter-spacing:1px;transition:.2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">← Retour</button>
+          <div class="admin-title">⚙ Administration</div>
+        </div>
+        <div class="admin-subtitle" style="margin-top:6px">Modifications appliquées immédiatement · Persistées en localStorage entre les sessions</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="admin-save-all" onclick="adminSaveAll()">💾 Tout sauvegarder</button>
+        <button class="admin-save-all" onclick="adminResetAll()" style="background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red)">↩ Réinitialiser</button>
+      </div>
+    </div>
+    <div class="admin-scroll">
+      <div id="adminTableWrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo">PokeVault</span>
+      <p>La boutique premium de cartes Pokémon authentifiées. Collection, rareté, passion.</p>
+      <div class="social-links" style="margin-top:20px">
+        <div class="social-link">𝕏</div>
+        <div class="social-link">ig</div>
+        <div class="social-link">yt</div>
+        <div class="social-link">dc</div>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Boutique</div>
+      <div class="footer-links">
+        <a onclick="navigate('catalogue')">Catalogue</a>
+        <a onclick="navigate('catalogue')">Nouveautés</a>
+        <a onclick="navigate('catalogue')">Destockage</a>
+        <a onclick="navigate('catalogue')">Lots & Bundles</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Informations</div>
+      <div class="footer-links">
+        <a onclick="navigate('about')">À propos</a>
+        <a>Livraison & retours</a>
+        <a>CGV</a>
+        <a>Politique de confidentialité</a>
+        <a>Mentions légales</a>
+      </div>
+    </div>
+    <div class="newsletter-wrap">
+      <div class="footer-col-title">Newsletter</div>
+      <p style="font-size:.85rem;color:rgba(240,238,232,.5);margin-bottom:0">Recevez les nouvelles cartes en avant-première.</p>
+      <div class="newsletter-form">
+        <input type="email" class="newsletter-input" placeholder="votre@email.com">
+        <button class="btn-newsletter" onclick="subscribeNewsletter(this)">OK</button>
+      </div>
+      <p class="newsletter-sub">Pas de spam, désinscription en 1 clic.</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 PokeVault — Tous droits réservés</span>
+    <span>Pokémon est une marque de Nintendo / Creatures Inc. / GAME FREAK inc.</span>
+    <div style="display:flex;gap:16px;align-items:center"><a>CGV</a><a>Confidentialité</a><a>Contact</a></div>
+  </div>
+</footer>
+
+<!-- GUEST PROMO MODAL -->
+<div class="guest-overlay" id="guestModal" onclick="closeGuestModal()">
+  <div class="guest-modal" onclick="event.stopPropagation()">
+    <button class="guest-modal-close" onclick="closeGuestModal()">✕</button>
+    <div class="guest-modal-icon">🎁</div>
+    <div class="guest-modal-title">Profitez de −5% sur votre commande</div>
+    <div class="guest-modal-sub">Laissez votre email pour rejoindre la newsletter et recevoir votre code de réduction immédiat.</div>
+    <input type="email" class="guest-modal-input" id="guestEmail" placeholder="votre@email.com" onkeydown="if(event.key==='Enter')claimNewsletterPromo()">
+    <div class="guest-modal-err" id="guestEmailErr"></div>
+    <button class="btn-claim" onclick="claimNewsletterPromo()">Obtenir mon code −5%</button>
+    <div class="guest-divider">ou</div>
+    <button class="btn-guest-skip" onclick="continueAsGuest()">Continuer sans compte →</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <span class="modal-icon">🎉</span>
+    <div class="modal-title">Commande Confirmée !</div>
+    <p class="modal-text">Merci pour votre commande. Vous recevrez un email de confirmation sous quelques minutes. Vos cartes sont emballées avec soin et expédiées sous 24h.</p>
+    <button class="btn-modal-close" onclick="closeModal()">Parfait, merci !</button>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const PRODUCTS = [
+  {id:1,name:'Dracaufeu',emoji:'🔥',img:'https://images.pokemontcg.io/base1/4.png',type:'Feu',rarity:'Secret Rare',extension:'Écarlate et Violet',price:249.99,condition:'Mint',stock:2,hp:180,attacks:[{name:'Lance-Flammes',dmg:120},{name:'Tempête de Feu',dmg:200}],badges:['popular'],description:'La carte la plus iconique du TCG. Holographique arc-en-ciel, état Mint absolu.'},
+  {id:2,name:'Mewtwo EX',emoji:'🔮',img:'https://images.pokemontcg.io/bw4/54.png',type:'Psy',rarity:'Ultra Rare',extension:'Évolutions Prismatiques',price:89.99,condition:'Near Mint',stock:5,hp:170,attacks:[{name:'Psycho Pouvoir',dmg:80},{name:'Mega Psyko',dmg:150}],badges:['popular'],description:'Mewtwo EX full art, l\'un des plus beaux prints jamais réalisés.'},
+  {id:3,name:'Pikachu VMAX',emoji:'⚡',img:'https://images.pokemontcg.io/swsh45/44.png',type:'Electrik',rarity:'Ultra Rare',extension:'Épée et Bouclier',price:54.99,condition:'Near Mint',stock:8,hp:310,attacks:[{name:'Tonnerre Géant',dmg:200}],badges:['new'],description:'Pikachu VMAX dans son magnifique art alternatif. Incontournable.'},
+  {id:4,name:'Carapuce',emoji:'💧',img:'https://images.pokemontcg.io/base1/63.png',type:'Eau',rarity:'Commune',extension:'Écarlate et Violet',price:0.80,condition:'Excellent',stock:50,hp:70,attacks:[{name:'Pistolet à O',dmg:20},{name:'Pistolet Bulles',dmg:40}],badges:[],description:'Le classique indémodable. Parfait pour débuter une collection.'},
+  {id:5,name:'Bulbizarre',emoji:'🌿',img:'https://images.pokemontcg.io/base1/44.png',type:'Plante',rarity:'Peu commune',extension:'Évolutions Prismatiques',price:3.50,condition:'Near Mint',stock:20,hp:80,attacks:[{name:'Fouet Lianes',dmg:30},{name:'Souplesse',dmg:50}],badges:[],description:'Bulbizarre dans sa version prismatique, reflets verts sublimes.'},
+  {id:6,name:'Rayquaza VSTAR',emoji:'🌟',img:'https://images.pokemontcg.io/swsh12pt5/60.png',type:'Normal',rarity:'Secret Rare',extension:'Étoiles Brillantes',price:179.99,condition:'Mint',stock:1,hp:230,attacks:[{name:'Turbotourbillon',dmg:180},{name:'Céleste Gamma',dmg:0}],badges:['popular'],description:'Rayquaza VSTAR Gold Art. Numéro de collection en or pur. Pièce d\'exception.'},
+  {id:7,name:'Artikodin',emoji:'❄️',img:'https://images.pokemontcg.io/base3/2.png',type:'Eau',rarity:'Rare',extension:'Évolutions Prismatiques',price:18.90,condition:'Near Mint',stock:12,hp:130,attacks:[{name:'Blizzard',dmg:80},{name:'Tempête Glaciale',dmg:110}],badges:['new'],description:'Artikodin holo, reflets bleus glacials. Extension Évolutions Prismatiques.'},
+  {id:8,name:'Sulfura',emoji:'🦅',img:'https://images.pokemontcg.io/base3/11.png',type:'Feu',rarity:'Rare',extension:'Écarlate et Violet',price:22.50,condition:'Excellent',stock:7,hp:130,attacks:[{name:'Flammes Sacrées',dmg:90},{name:'Tempête de Feu',dmg:130}],badges:[],description:'L\'oiseau légendaire de feu dans sa version holographique moderne.'},
+  {id:9,name:'Lokhlass',emoji:'🦕',img:'https://images.pokemontcg.io/base3/10.png',type:'Eau',rarity:'Peu commune',extension:'Épée et Bouclier',price:4.20,condition:'Near Mint',stock:15,hp:100,attacks:[{name:'Vague',dmg:30},{name:'Hydropompe',dmg:70}],badges:[],description:'Lokhlass, le Pokémon légendaire aquatique dans une belle édition récente.'},
+  {id:10,name:'Alakazam',emoji:'🥄',img:'https://images.pokemontcg.io/base1/1.png',type:'Psy',rarity:'Rare',extension:'Evolutions Prismatiques',price:35.00,condition:'Near Mint',stock:6,hp:110,attacks:[{name:'Téléportation',dmg:50},{name:'Psychique',dmg:90}],badges:['new'],description:'Alakazam holo vintage remastérisé. Le graal des collectionneurs nostalgie.'},
+  {id:11,name:'Pikachu',emoji:'⚡',img:'https://images.pokemontcg.io/base1/58.png',type:'Electrik',rarity:'Commune',extension:'Écarlate et Violet',price:1.20,condition:'Excellent',stock:0,hp:60,attacks:[{name:'Tonnerre',dmg:30}],badges:['soldout'],description:'Le Pikachu classique de base. En rupture — très demandé !'},
+  {id:12,name:'Dracolosse',emoji:'🐉',img:'https://images.pokemontcg.io/base3/4.png',type:'Normal',rarity:'Ultra Rare',extension:'Évolutions Prismatiques',price:68.00,condition:'Mint',stock:3,hp:160,attacks:[{name:'Mâchoire Dragon',dmg:90},{name:'Hyper Faisceau',dmg:150}],badges:['popular'],description:'Dracolosse full art prismatique. Holographique exceptionnel, état Mint.'},
+  {id:13,name:'Tortank',emoji:'🐢',img:'https://images.pokemontcg.io/base1/2.png',type:'Eau',rarity:'Rare',extension:'Épée et Bouclier',price:42.00,condition:'Near Mint',stock:4,hp:100,attacks:[{name:'Hydropompe',dmg:40},{name:'Cascade',dmg:80}],badges:[],description:'Tortank holo Base Set, l\'un des starter les plus populaires. Classique absolu.'},
+  {id:14,name:'Florizarre',emoji:'🌺',img:'https://images.pokemontcg.io/base1/17.png',type:'Plante',rarity:'Rare',extension:'Évolutions Prismatiques',price:38.50,condition:'Near Mint',stock:6,hp:100,attacks:[{name:'Fouet Lianes',dmg:40},{name:'Soleil Solaire',dmg:80}],badges:['new'],description:'Florizarre holo, le starter Plante de Kanto dans sa version holographique légendaire.'},
+  {id:15,name:'Léviator',emoji:'🐲',img:'https://images.pokemontcg.io/base1/6.png',type:'Eau',rarity:'Ultra Rare',extension:'Noir et Blanc',price:75.00,condition:'Mint',stock:2,hp:130,attacks:[{name:'Dragon Rage',dmg:50},{name:'Tsunami',dmg:120}],badges:['popular'],description:'Léviator holo Base Set — reflets bleus électrisants, l\'un des plus beaux holos de première génération.'},
+  {id:16,name:'Raichu',emoji:'🐭',img:'https://images.pokemontcg.io/base1/14.png',type:'Electrik',rarity:'Rare',extension:'Soleil et Lune',price:29.90,condition:'Near Mint',stock:9,hp:80,attacks:[{name:'Tonnerre',dmg:30},{name:'Foudre',dmg:60}],badges:[],description:'Raichu holo de la collection Base Set. Évolution iconique de Pikachu.'},
+  {id:17,name:'Mackogneur',emoji:'💪',img:'https://images.pokemontcg.io/base1/8.png',type:'Normal',rarity:'Rare',extension:'XY',price:19.90,condition:'Excellent',stock:11,hp:100,attacks:[{name:'Poing-Éclair',dmg:40},{name:'Soumission',dmg:80}],badges:[],description:'Mackogneur holo — le Pokémon Combat le plus puissant de la Base Set.'},
+  {id:18,name:'Feunard',emoji:'🦊',img:'https://images.pokemontcg.io/base1/12.png',type:'Feu',rarity:'Rare',extension:'Soleil et Lune',price:33.00,condition:'Near Mint',stock:5,hp:80,attacks:[{name:'Flamèche',dmg:30},{name:'Embrasement',dmg:70}],badges:[],description:'Feunard holo — le Pokémon Renard en version holographique. Très apprécié des collectionneurs.'},
+  {id:19,name:'Nidoking',emoji:'👑',img:'https://images.pokemontcg.io/base1/11.png',type:'Normal',rarity:'Rare',extension:'XY',price:24.50,condition:'Near Mint',stock:8,hp:90,attacks:[{name:'Toxik',dmg:20},{name:'Tremblement',dmg:60}],badges:[],description:'Nidoking holo Base Set — le roi de Kanto dans une version holographique somptueuse.'},
+  {id:20,name:'Ectoplasma',emoji:'👻',img:'https://images.pokemontcg.io/base3/5.png',type:'Psy',rarity:'Ultra Rare',extension:'Épée et Bouclier',price:89.00,condition:'Near Mint',stock:3,hp:80,attacks:[{name:'Léchouille',dmg:10},{name:'Malédiction',dmg:50}],badges:['popular'],description:'Ectoplasma holo Fossil — le fantôme légendaire, très recherché des collectionneurs de Gen 1.'},
+  {id:21,name:'Ronflex',emoji:'😴',img:'https://images.pokemontcg.io/base3/14.png',type:'Normal',rarity:'Rare',extension:'Noir et Blanc',price:27.00,condition:'Excellent',stock:7,hp:90,attacks:[{name:'Repos',dmg:0},{name:'Écrasement',dmg:60}],badges:[],description:'Ronflex, le colosse dormeur — carte rare Fossil très populaire chez les fans de Gen 1.'},
+  {id:22,name:'Électhor',emoji:'⚡',img:'https://images.pokemontcg.io/base1/18.png',type:'Electrik',rarity:'Rare',extension:'XY',price:31.00,condition:'Near Mint',stock:6,hp:80,attacks:[{name:'Tonnerre',dmg:30},{name:'Foudre de Feu',dmg:60}],badges:['new'],description:'Électhor holo Base Set — l\'oiseau légendaire électrique, reflets jaunes spectaculaires.'},
+  {id:23,name:'Hypnomade',emoji:'🌀',img:'https://images.pokemontcg.io/base3/7.png',type:'Psy',rarity:'Peu commune',extension:'Soleil et Lune',price:8.50,condition:'Near Mint',stock:13,hp:90,attacks:[{name:'Hypnose',dmg:20},{name:'Psy',dmg:50}],badges:[],description:'Hypnomade de la collection Fossil — maître du sommeil et de l\'hypnose.'},
+  {id:24,name:'Aérödactyl',emoji:'🦖',img:'https://images.pokemontcg.io/base3/1.png',type:'Normal',rarity:'Ultra Rare',extension:'Noir et Blanc',price:55.00,condition:'Mint',stock:2,hp:70,attacks:[{name:'Ancienne Puissance',dmg:30}],badges:['new'],description:'Aérödactyl holo Fossil — le dinosaure préhistorique fossilisé, état Mint exceptionnel.'},
+  {id:25,name:'Lugia',emoji:'🕊️',img:'https://images.pokemontcg.io/neo2/9.png',type:'Psy',rarity:'Secret Rare',extension:'Soleil et Lune',price:199.00,condition:'Mint',stock:1,hp:90,attacks:[{name:'Aérojet',dmg:30},{name:'Tempête Aéro',dmg:70}],badges:['popular'],description:'Lugia Neo Genesis — le gardien des mers, carte la plus précieuse de la Gen 2. État Mint parfait.'},
+  {id:26,name:'Sulfura de Galar',emoji:'🔥',img:'https://images.pokemontcg.io/swsh6/21.png',type:'Feu',rarity:'Ultra Rare',extension:'Épée et Bouclier',price:47.00,condition:'Near Mint',stock:4,hp:140,attacks:[{name:'Danse de Feu',dmg:70},{name:'Inferno',dmg:130}],badges:['new'],description:'Sulfura de Galar dans sa version Épée et Bouclier — design régional saisissant.'},
+];
+
+// Apply any saved admin overrides immediately
+(function loadAdminOverrides(){
+  try {
+    const ov = JSON.parse(localStorage.getItem('pokevault_products')||'{}');
+    PRODUCTS.forEach(p=>{
+      const o = ov[p.id];
+      if(!o) return;
+      if(o.name       !== undefined) p.name        = o.name;
+      if(o.price      !== undefined) p.price       = o.price;
+      if(o.description!== undefined) p.description = o.description;
+      if(o.stock      !== undefined) p.stock       = o.stock;
+      if(o.img        !== undefined) p.img         = o.img;
+    });
+  } catch(e){}
+})();
+
+const RARITY_ORDER = {'Commune':1,'Peu commune':2,'Rare':3,'Ultra Rare':4,'Secret Rare':5};
+const PROMO_CODES = {VAULT10:{type:'percent',value:10,label:'-10%'},HOLO20:{type:'percent',value:20,label:'-20%'},GOLD5:{type:'fixed',value:5,label:'-5€'},NEWSLETTER5:{type:'percent',value:5,label:'-5% Newsletter'}};
+
+// ===== CART STATE =====
+let cart = JSON.parse(localStorage.getItem('pokevault_cart')||'[]');
+let currentPromo = null;
+let currentProductId = null;
+let previousPage = 'home';
+let currentPage  = 'home';
+
+// ===== NAVIGATION =====
+function navigate(page, productId=null){
+  if(page !== currentPage) previousPage = currentPage;
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+  document.querySelectorAll('nav a').forEach(a=>{
+    a.classList.toggle('active', a.dataset.page===page);
+  });
+  if(productId!==null){
+    currentProductId=productId;
+    renderProduct(productId);
+  }
+  if(page==='catalogue') renderCatalogue();
+  if(page==='cart') renderCart();
+  if(page==='home') renderFeatured();
+  if(page==='account') renderAccount();
+  if(page==='checkout') initCheckout();
+  if(page==='auth' && currentUser){ navigate('catalogue'); return false; }
+  if(page==='admin'){ if(!isAdmin()){ navigate('auth'); return false; } renderAdmin(); }
+  if(page==='confirmation' && coLastOrder) { navigate('checkout'); goToStep(3); return false; }
+  if(page==='auth'){ switchAuthTab('login'); }
+  window.scrollTo({top:0,behavior:'smooth'});
+  return false;
+}
+
+// ===== RENDER PRODUCT CARD =====
+function renderCard(p, context='catalogue'){
+  const inCart = cart.find(c=>c.id===p.id);
+  const typeClass = 'type-'+p.type.toLowerCase().replace('é','e').replace('ê','e');
+  const rarityClass = 'rarity-'+p.rarity.toLowerCase().replace(/ /g,'-').replace('é','e');
+  const isSoldOut = p.stock===0;
+  const isExpensive = p.price>=50;
+  const isUltraExpensive = p.price>=100;
+  const priceClass = isUltraExpensive?'ultra-expensive':isExpensive?'expensive':'';
+  return `
+    <div class="product-card" onclick="navigate('product',${p.id})" onmousemove="cardTilt(event,this)" onmouseleave="cardTiltReset(this)">
+      <div class="card-img-wrap">
+        <div class="card-img">
+          <img src="${p.img}" alt="${p.name}" class="card-real-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <span class="card-emoji-fallback" style="display:none">${p.emoji}</span>
+        </div>
+        <div class="card-holo"></div>
+        <div class="card-shine"></div>
+        <div class="card-rarity-glow ${rarityClass}"></div>
+        <div class="card-badges">
+          ${p.badges.includes('new')?'<span class="badge badge-new">Nouveau</span>':''}
+          ${p.badges.includes('popular')?'<span class="badge badge-popular">Populaire</span>':''}
+          ${(isSoldOut||p.badges.includes('soldout'))?'<span class="badge badge-soldout">Rupture</span>':''}
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${p.name}</div>
+        <div class="card-meta">
+          <span class="card-type ${typeClass}">${p.type}</span>
+          <span class="card-rarity-text">${p.rarity}</span>
+        </div>
+        <div class="card-condition">${p.condition} • ${p.extension}</div>
+        <div class="card-footer" style="margin-top:10px">
+          <div>
+            <div class="card-price ${priceClass}">${formatPrice(p.price)}</div>
+          </div>
+          <button class="btn-add-mini" ${isSoldOut?'disabled':''} onclick="event.stopPropagation();addToCart(${p.id})">
+            ${isSoldOut?'Épuisé':'+ Panier'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===== FEATURED =====
+function renderFeatured(){
+  const featured = PRODUCTS.filter(p=>p.badges.includes('popular')||p.rarity==='Secret Rare').slice(0,6);
+  document.getElementById('featuredGrid').innerHTML = featured.map(p=>renderCard(p)).join('');
+}
+
+// ===== CATALOGUE =====
+let filteredProducts = [...PRODUCTS];
+function renderCatalogue(){
+  applyFilters();
+}
+function applyFilters(){
+  const search = document.getElementById('searchInput')?.value.toLowerCase()||'';
+  const rarity = document.getElementById('filterRarity')?.value||'';
+  const serie = document.getElementById('filterSerie')?.value||'';
+  const sort = document.getElementById('filterSort')?.value||'default';
+
+  filteredProducts = PRODUCTS.filter(p=>{
+    const matchSearch = !search || p.name.toLowerCase().includes(search) || p.extension.toLowerCase().includes(search);
+    const matchRarity = !rarity || p.rarity===rarity;
+    const matchSerie = !serie || p.extension===serie;
+    return matchSearch && matchRarity && matchSerie;
+  });
+
+  if(sort==='price-asc') filteredProducts.sort((a,b)=>a.price-b.price);
+  else if(sort==='price-desc') filteredProducts.sort((a,b)=>b.price-a.price);
+  else if(sort==='name-asc') filteredProducts.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const grid = document.getElementById('catalogueGrid');
+  const count = document.getElementById('catalogueCount');
+  if(grid){
+    grid.innerHTML = filteredProducts.length
+      ? filteredProducts.map(p=>renderCard(p)).join('')
+      : '<div class="no-results">Aucune carte trouvée 🔍</div>';
+  }
+  if(count) count.textContent = `${filteredProducts.length} carte${filteredProducts.length!==1?'s':''}`;
+  renderActiveFilters(search, rarity, serie);
+}
+function renderActiveFilters(search, rarity, serie){
+  const wrap = document.getElementById('activeFilters');
+  if(!wrap) return;
+  let html = '';
+  if(search) html += `<div class="filter-tag" onclick="clearFilter('search')">🔍 "${search}" <span class="filter-tag-x">×</span></div>`;
+  if(rarity) html += `<div class="filter-tag" onclick="clearFilter('rarity')">Type: ${rarity} <span class="filter-tag-x">×</span></div>`;
+  if(serie) html += `<div class="filter-tag" onclick="clearFilter('serie')">Série: ${serie} <span class="filter-tag-x">×</span></div>`;
+  wrap.innerHTML = html;
+}
+function clearFilter(f){
+  if(f==='search'){const el=document.getElementById('searchInput');if(el)el.value='';}
+  if(f==='rarity'){const el=document.getElementById('filterRarity');if(el)el.value='';}
+  if(f==='serie'){const el=document.getElementById('filterSerie');if(el)el.value='';}
+  applyFilters();
+}
+
+// ===== PRODUCT DETAIL =====
+function renderProduct(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const isSoldOut = p.stock===0;
+  const typeClass = 'type-'+p.type.toLowerCase().replace('é','e').replace('ê','e');
+  const rarityClass = 'rarity-'+p.rarity.toLowerCase().replace(/ /g,'-').replace('é','e');
+  document.getElementById('productLayout').innerHTML = `
+    <div>
+      <div class="product-card-display" id="productDisplay" onmousemove="productHolo(event)" onmouseleave="productHoloReset()">
+        <div class="product-holo-overlay" id="productHoloOverlay"></div>
+        <div class="product-emoji" id="productEmoji">
+          <img src="${p.img}" alt="${p.name}" class="product-real-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+          <span style="display:none;font-size:9rem">${p.emoji}</span>
+        </div>
+        <div class="card-rarity-glow ${rarityClass}" style="position:absolute;bottom:0;left:0;right:0;height:6px;border-radius:0 0 16px 16px"></div>
+      </div>
+    </div>
+    <div class="product-details">
+      <div class="product-extension">${p.extension}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-tags">
+        <span class="card-type ${typeClass}">${p.type}</span>
+        <span class="badge ${getRarityBadgeClass(p.rarity)}" style="position:static">${p.rarity}</span>
+        ${p.badges.includes('popular')?'<span class="badge badge-popular" style="position:static">Populaire</span>':''}
+        ${p.badges.includes('new')?'<span class="badge badge-new" style="position:static">Nouveau</span>':''}
+      </div>
+      <div class="product-price-block">
+        <div class="product-price-main">${formatPrice(p.price)}</div>
+        <div class="product-price-sub">TTC • Livraison offerte dès 50€</div>
+      </div>
+      <div class="product-stats">
+        <div class="stat-item"><div class="stat-item-label">Points de Vie</div><div class="stat-item-val">${p.hp} PV</div></div>
+        <div class="stat-item"><div class="stat-item-label">État</div><div class="stat-item-val">${p.condition}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Rareté</div><div class="stat-item-val">${p.rarity}</div></div>
+        <div class="stat-item"><div class="stat-item-label">Stock</div><div class="stat-item-val" style="color:${p.stock===0?'var(--red)':p.stock<=3?'var(--gold)':'#81c784'}">${p.stock===0?'Épuisé':p.stock<=3?`Plus que ${p.stock}!`:`${p.stock} disponibles`}</div></div>
+      </div>
+      <div class="product-attacks">
+        <div class="attacks-title">Attaques</div>
+        ${p.attacks.map(a=>`<div class="attack"><span class="attack-name">${a.name}</span><span class="attack-dmg">${a.dmg?a.dmg+' dégâts':'Capacité spéciale'}</span></div>`).join('')}
+      </div>
+      <p style="font-size:.95rem;color:rgba(240,238,232,.65);margin-bottom:20px;line-height:1.7">${p.description}</p>
+      <button class="btn-add-cart" ${isSoldOut?'disabled':''} onclick="addToCart(${p.id});showToast('${p.name}')">
+        ${isSoldOut?'Carte épuisée':'Ajouter au panier'}
+      </button>
+      <div class="product-guarantee">
+        <span class="guarantee-item">🔐 Authenticité garantie</span>
+        <span class="guarantee-item">📦 Emballage premium</span>
+        <span class="guarantee-item">↩️ Retour 14j</span>
+      </div>
+    </div>`;
+}
+function getRarityBadgeClass(r){
+  if(r==='Secret Rare') return 'badge-popular';
+  if(r==='Ultra Rare') return 'badge-new';
+  return '';
+}
+
+// ===== CART =====
+function addToCart(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p||p.stock===0) return;
+  const existing = cart.find(c=>c.id===id);
+  if(existing){
+    if(existing.qty<p.stock) existing.qty++;
+  } else {
+    cart.push({id,qty:1});
+  }
+  saveCart();
+  updateCartCount();
+  showToast(p.name, p.emoji);
+}
+function removeFromCart(id){
+  cart = cart.filter(c=>c.id!==id);
+  saveCart();
+  updateCartCount();
+  renderCart();
+}
+function changeQty(id, delta){
+  const item = cart.find(c=>c.id===id);
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!item) return;
+  item.qty = Math.max(1, Math.min(item.qty+delta, p?.stock||99));
+  saveCart();
+  renderCart();
+}
+function saveCart(){localStorage.setItem('pokevault_cart',JSON.stringify(cart))}
+function updateCartCount(){
+  const total = cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cartCount').textContent=total;
+}
+function renderCart(){
+  const container = document.getElementById('cartItemsContainer');
+  if(!container) return;
+  if(cart.length===0){
+    container.innerHTML=`<div class="cart-empty"><span class="cart-empty-icon">🛒</span><div>Votre panier est vide</div><br><button class="btn-primary" onclick="navigate('catalogue')" style="margin-top:16px">Découvrir les cartes</button></div>`;
+    updateCartSummary();
+    return;
+  }
+  container.innerHTML = cart.map(item=>{
+    const p = PRODUCTS.find(x=>x.id===item.id);
+    if(!p) return '';
+    return `<div class="cart-item">
+      <div class="cart-item-emoji">${p.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-meta">${p.rarity} • ${p.condition} • ${formatPrice(p.price)} / carte</div>
+      </div>
+      <div class="cart-item-controls">
+        <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
+      </div>
+      <div class="cart-item-price">${formatPrice(p.price*item.qty)}</div>
+      <button class="cart-item-remove" onclick="removeFromCart(${p.id})">×</button>
+    </div>`;
+  }).join('');
+  updateCartSummary();
+}
+function updateCartSummary(){
+  const subtotal = cart.reduce((s,c)=>{const p=PRODUCTS.find(x=>x.id===c.id);return s+(p?p.price*c.qty:0);},0);
+  const shipping = cart.length===0?0:subtotal>=50?0:4.95;
+  let discount = 0;
+  if(currentPromo){
+    const pr = PROMO_CODES[currentPromo];
+    if(pr.type==='percent') discount=subtotal*pr.value/100;
+    else discount=Math.min(pr.value,subtotal);
+  }
+  const total = Math.max(0, subtotal+shipping-discount);
+  const el = (id)=>document.getElementById(id);
+  if(el('subtotalVal')) el('subtotalVal').textContent=formatPrice(subtotal);
+  if(el('shippingVal')) el('shippingVal').textContent=cart.length===0?'—':subtotal>=50?'Gratuite':formatPrice(shipping);
+  if(el('discountLine')) el('discountLine').style.display=currentPromo?'flex':'none';
+  if(el('discountVal')) el('discountVal').textContent='-'+formatPrice(discount);
+  if(el('totalVal')) el('totalVal').textContent=formatPrice(total);
+  const payBtn = el('checkoutBtn');
+  if(payBtn) payBtn.disabled = cart.length===0;
+  if(cart.length===0){selectedPayment=null;document.querySelectorAll('.pm-row').forEach(b=>b.classList.remove('selected'));if(el('payBtnLabel'))el('payBtnLabel').textContent='Choisir un moyen de paiement';if(el('checkoutBtn'))el('checkoutBtn').className='btn-pay default-cta';}
+}
+function applyPromo(){
+  const code = document.getElementById('promoInput')?.value.trim().toUpperCase();
+  const msg = document.getElementById('promoMsg');
+  if(PROMO_CODES[code]){
+    currentPromo=code;
+    if(msg){msg.textContent='Code '+PROMO_CODES[code].label+' appliqué !';msg.className='promo-msg ok';}
+    updateCartSummary();
+  } else {
+    currentPromo=null;
+    if(msg){msg.textContent='Code promo invalide.';msg.className='promo-msg err';}
+    updateCartSummary();
+  }
+}
+// ===== PAYMENT =====
+let selectedPayment = 'stripe';
+
+const PAYMENT_CONFIG = {
+  stripe:   {label:'Payer par carte',     icon:'💳', ctaClass:'stripe-cta'},
+  paypal:   {label:'Continuer avec PayPal', icon:'🔵', ctaClass:'paypal-cta'},
+  applepay: {label:'Payer avec',          icon:'',   ctaClass:'applepay-cta', svg:true},
+  klarna:   {label:'Payer en 3× avec',   icon:'🌸', ctaClass:'klarna-cta'},
+};
+
+function selectPayment(method){
+  selectedPayment = method;
+  document.querySelectorAll('.pm-row').forEach(btn=>btn.classList.remove('selected'));
+  document.querySelector('.pm-row[data-method="'+method+'"]')?.classList.add('selected');
+  const cfg = PAYMENT_CONFIG[method];
+  const btn = document.getElementById('checkoutBtn');
+  const icon = document.getElementById('payBtnIcon');
+  const lbl = document.getElementById('payBtnLabel');
+  if(!btn||!icon||!lbl) return;
+  btn.className = 'btn-pay '+cfg.ctaClass;
+  if(cart.length===0) btn.disabled=true;
+  if(method==='applepay'){
+    icon.innerHTML = `<svg width="52" height="20" viewBox="0 0 58 24" fill="none"><path d="M10.5 3.2c.8-1 1.3-2.3 1.2-3.7-1.2.1-2.6.8-3.4 1.8-.8.9-1.4 2.2-1.2 3.5 1.3.1 2.6-.6 3.4-1.6z" fill="white"/><path d="M11.7 5c-1.9-.1-3.5 1.1-4.4 1.1-.9 0-2.3-1-3.8-1C1.4 5.2-.3 6.7-.3 9.8c0 4.2 3.8 10.5 5.5 10.5.8 0 1.4-.5 2.6-.5 1.2 0 1.8.5 2.8.5 1.8 0 5.4-6 5.4-10.1-.1 0-4.3-1.7-4.3-5.2z" fill="white"/></svg>`;
+    lbl.textContent = 'Apple Pay';
+  } else {
+    icon.innerHTML = cfg.icon;
+    lbl.textContent = cfg.label;
+  }
+}
+
+function handlePayment(){
+  if(!selectedPayment){showToast('Choisissez un moyen de paiement','⚠️');return;}
+  if(cart.length===0) return;
+  if(!currentUser){ showGuestModal(); return; }
+  navigate('checkout');
+}
+
+// ===== CHECKOUT =====
+let coStep = 1;
+let coShippingCost = 0;
+let coShippingMethod = 'standard';
+let coPaymentMethod = selectedPayment || 'stripe';
+let coShippingData = {};
+let coLastOrder = null; // snapshot saved before cart is cleared
+
+const SHIPPING_OPTIONS = [
+  {id:'standard', name:'Livraison Standard',   desc:'5 à 7 jours ouvrés',     price:0,    badge:'Gratuite'},
+  {id:'express',  name:'Livraison Express',    desc:'2 à 3 jours ouvrés',     price:4.95, badge:null},
+  {id:'chrono',   name:'Chronopost 24h',       desc:'Le lendemain avant 13h', price:9.90, badge:'Le plus rapide'},
+];
+
+function initCheckout(){
+  coStep = 1;
+  coShippingCost = 0;
+  coShippingMethod = 'standard';
+  coShippingData = {};
+  coPaymentMethod = selectedPayment || 'stripe';
+  renderCheckoutSteps();
+  renderCheckoutSummary();
+  renderCheckoutStep();
+}
+
+function renderCheckoutSteps(){
+  [1,2,3].forEach(i=>{
+    const el = document.getElementById('step-ind-'+i);
+    if(!el) return;
+    el.classList.remove('active','done');
+    if(i < coStep) el.classList.add('done');
+    else if(i === coStep) el.classList.add('active');
+    if(i<3){
+      const conn = document.getElementById('conn-'+i);
+      if(conn) conn.classList.toggle('done', i < coStep);
+    }
+    // replace checkmark in done steps
+    const num = el.querySelector('.step-num');
+    if(num) num.textContent = i < coStep ? '✓' : i;
+  });
+  const layout = document.getElementById('checkoutLayout');
+  if(layout){
+    layout.style.display = 'block'; // always block, grid via CSS class
+    layout.style.gridTemplateColumns = coStep===3 ? '' : '';
+  }
+  const sidebar = document.getElementById('checkoutSidebarWrap');
+  if(sidebar) sidebar.style.display = coStep===3 ? 'none' : '';
+  const steps = document.getElementById('checkoutSteps');
+  if(steps) steps.style.display = coStep===3 ? 'none' : '';
+}
+
+function renderCheckoutSummary(){
+  const subtotal = cart.reduce((s,c)=>{const p=PRODUCTS.find(x=>x.id===c.id);return s+(p?p.price*c.qty:0);},0);
+  const discount = currentPromo ? (()=>{const pr=PROMO_CODES[currentPromo];return pr.type==='percent'?subtotal*pr.value/100:Math.min(pr.value,subtotal);})() : 0;
+  const total = Math.max(0, subtotal + coShippingCost - discount);
+
+  const itemsEl = document.getElementById('checkoutSummaryItems');
+  if(itemsEl){
+    itemsEl.innerHTML = cart.map(c=>{
+      const p = PRODUCTS.find(x=>x.id===c.id);
+      if(!p) return '';
+      return `<div class="checkout-summary-item">
+        <img src="${p.img}" alt="${p.name}" class="checkout-summary-item-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="checkout-summary-item-emoji" style="display:none">${p.emoji}</div>
+        <div class="checkout-summary-item-info">
+          <div class="checkout-summary-item-name">${p.name}</div>
+          <div class="checkout-summary-item-sub">Qté ${c.qty} · ${p.rarity}</div>
+        </div>
+        <div class="checkout-summary-item-price">${formatPrice(p.price*c.qty)}</div>
+      </div>`;
+    }).join('');
+  }
+  const set = (id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('coSubtotal', formatPrice(subtotal));
+  set('coShipping', coShippingCost===0?'Gratuite':formatPrice(coShippingCost));
+  set('coTotal', formatPrice(total));
+  const dl = document.getElementById('coDiscountLine');
+  if(dl) dl.style.display = currentPromo ? 'flex' : 'none';
+  set('coDiscount', '-'+formatPrice(discount));
+}
+
+function renderCheckoutStep(){
+  const area = document.getElementById('checkoutFormArea');
+  if(!area) return;
+  if(coStep===1) area.innerHTML = renderStepShipping();
+  if(coStep===2) area.innerHTML = renderStepPayment();
+  if(coStep===3) {
+    document.getElementById('checkoutFormArea').innerHTML = renderStepConfirmation();
+  }
+}
+
+function renderStepShipping(){
+  const u = currentUser || {};
+  return `
+    <form onsubmit="submitShipping(event)">
+      <div class="checkout-section">
+        <div class="checkout-section-title">📋 Informations personnelles</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Prénom *</label>
+            <input class="form-input" id="coFirst" placeholder="Sacha" value="${u.firstName||''}" required>
+            <div class="form-err-msg" id="errFirst"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Nom *</label>
+            <input class="form-input" id="coLast" placeholder="Ketchum" value="${u.lastName||''}" required>
+            <div class="form-err-msg" id="errLast"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Adresse e-mail *</label>
+            <div class="form-input-icon">
+              <span class="form-input-icon-sym">✉</span>
+              <input class="form-input" id="coEmail" type="email" placeholder="vous@email.com" value="${u.email||''}" required>
+            </div>
+            <div class="form-err-msg" id="errEmail"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Téléphone</label>
+            <div class="form-input-icon">
+              <span class="form-input-icon-sym">📱</span>
+              <input class="form-input" id="coPhone" type="tel" placeholder="+33 6 12 34 56 78">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="checkout-section">
+        <div class="checkout-section-title">📍 Adresse de livraison</div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label class="form-label">Adresse *</label>
+            <input class="form-input" id="coAddress" placeholder="12 rue de la Victoire" value="${u.address||''}" required>
+            <div class="form-err-msg" id="errAddress"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Complément</label>
+            <input class="form-input" id="coAddress2" placeholder="Appartement, bâtiment…">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Code postal *</label>
+            <input class="form-input" id="coZip" placeholder="75001" value="${u.zip||''}" required>
+            <div class="form-err-msg" id="errZip"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Ville *</label>
+            <input class="form-input" id="coCity" placeholder="Paris" value="${u.city||''}" required>
+            <div class="form-err-msg" id="errCity"></div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Pays *</label>
+            <select class="form-select form-input" id="coCountry">
+              <option value="FR" selected>🇫🇷 France</option>
+              <option value="BE">🇧🇪 Belgique</option>
+              <option value="CH">🇨🇭 Suisse</option>
+              <option value="LU">🇱🇺 Luxembourg</option>
+              <option value="DE">🇩🇪 Allemagne</option>
+              <option value="IT">🇮🇹 Italie</option>
+              <option value="ES">🇪🇸 Espagne</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="checkout-section">
+        <div class="checkout-section-title">🚚 Mode de livraison</div>
+        <div class="shipping-options">
+          ${SHIPPING_OPTIONS.map(opt=>`
+            <label class="shipping-option ${coShippingMethod===opt.id?'selected':''}" onclick="selectShipping('${opt.id}',${opt.price})">
+              ${opt.badge?`<div class="shipping-option-badge">${opt.badge}</div>`:''}
+              <input type="radio" name="shipping" value="${opt.id}" ${coShippingMethod===opt.id?'checked':''}>
+              <div class="shipping-option-info">
+                <div class="shipping-option-name">${opt.name}</div>
+                <div class="shipping-option-desc">${opt.desc}</div>
+              </div>
+              <div class="shipping-option-price">${opt.price===0?'Gratuit':formatPrice(opt.price)}</div>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="checkout-cta">
+        <button type="submit" class="btn-checkout-submit default-cta" style="background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--black);box-shadow:0 4px 20px rgba(245,200,66,.25)">
+          Continuer vers le paiement →
+        </button>
+        <button type="button" class="btn-back-cart" onclick="navigate('cart')">← Retour au panier</button>
+      </div>
+    </form>`;
+}
+
+function renderStepPayment(){
+  const pm = coPaymentMethod || 'stripe';
+  const pmCfg = {
+    stripe:   {label:'Payer par carte',       ctaClass:'stripe-cta',   icon:'💳'},
+    paypal:   {label:'Payer avec PayPal',     ctaClass:'paypal-cta',   icon:'🔵'},
+    applepay: {label:'Apple Pay',             ctaClass:'applepay-cta', icon:'🍎'},
+    klarna:   {label:'Klarna — Payer en 3×', ctaClass:'klarna-cta',   icon:'🌸'},
+  };
+  const rarityColors={'Commune':'#888','Peu commune':'#4fc3f7','Rare':'#f5c842','Ultra Rare':'#b44fff','Secret Rare':'#ff6b35'};
+  return `
+    <div class="checkout-section">
+      <div class="checkout-section-title">✏️ Récapitulatif livraison
+        <button type="button" onclick="goToStep(1)" style="margin-left:auto;font-size:.65rem;color:var(--gold);opacity:.7;background:none;font-family:'Cinzel',serif;letter-spacing:1px;cursor:pointer">Modifier</button>
+      </div>
+      <div id="coShippingSummary" style="font-size:.9rem;line-height:1.9;color:rgba(240,238,232,.7)">${(()=>{
+        const d=coShippingData;
+        const opt=SHIPPING_OPTIONS.find(o=>o.id===coShippingMethod);
+        if(!d.first) return '<em style="opacity:.4">Aucune information renseignée</em>';
+        return `<strong style="color:var(--white)">${d.first} ${d.last}</strong><br>${d.email}<br>${d.addr}${d.addr2?' — '+d.addr2:''}<br>${d.zip} ${d.city}<br><br>🚚 <strong style="color:var(--gold)">${opt?.name}</strong> — ${opt?.price===0?'Gratuit':formatPrice(opt?.price||0)}`;
+      })()}</div>
+    </div>
+
+    <div class="checkout-section">
+      <div class="checkout-section-title">💳 Mode de paiement</div>
+      <div class="checkout-payment-methods">
+        <div class="pm-list">
+          <div class="pm-row ${pm==='stripe'?'selected':''}" data-method="stripe" onclick="selectCoPayment('stripe')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-stripe">stripe</div>
+              <div class="pm-desc">Carte bancaire</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-visa">VISA</span>
+              <span class="pm-icon pm-icon-mc">MC</span>
+              <span class="pm-icon pm-icon-cb">CB</span>
+            </div>
+          </div>
+          <div class="pm-row ${pm==='paypal'?'selected':''}" data-method="paypal" onclick="selectCoPayment('paypal')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-paypal"><span class="pp-dark">Pay</span><span class="pp-blue">Pal</span></div>
+              <div class="pm-desc">Paiement sécurisé PayPal</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-pp">PP</span>
+            </div>
+          </div>
+          <div class="pm-row ${pm==='applepay'?'selected':''}" data-method="applepay" onclick="selectCoPayment('applepay')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-applepay"> Pay</div>
+              <div class="pm-desc">Apple Pay</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-ap"> Pay</span>
+            </div>
+          </div>
+          <div class="pm-row ${pm==='klarna'?'selected':''}" data-method="klarna" onclick="selectCoPayment('klarna')">
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+            <div class="pm-brand">
+              <div class="pm-wordmark pm-wordmark-klarna">klarna.<span class="pm-badge-3x">3×</span></div>
+              <div class="pm-desc">Payer en 3× sans frais</div>
+            </div>
+            <div class="pm-icons">
+              <span class="pm-icon pm-icon-kl">KL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="checkout-card-fields ${pm==='stripe'?'visible':''}" id="cardFields">
+        <div class="form-row">
+          <div class="form-field full">
+            <label class="form-label">Numéro de carte *</label>
+            <div class="card-number-wrap">
+              <input class="form-input" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNum(this)" style="padding-right:90px">
+              <div class="card-logos">
+                <div class="card-logo-mini" style="color:#1a1f71;font-size:.55rem;letter-spacing:.5px">VISA</div>
+                <div class="card-logo-mini" style="color:#eb001b;font-size:.6rem">MC</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Date d'expiration *</label>
+            <input class="form-input" id="cardExp" placeholder="MM / AA" maxlength="7" oninput="formatCardExp(this)">
+          </div>
+          <div class="form-field">
+            <label class="form-label">CVV *</label>
+            <input class="form-input" id="cardCvv" placeholder="•••" maxlength="4" type="password">
+          </div>
+          <div class="form-field full">
+            <label class="form-label">Nom sur la carte *</label>
+            <input class="form-input" id="cardName" placeholder="SACHA KETCHUM">
+          </div>
+        </div>
+      </div>
+
+      <div id="paypalInfo" style="display:${pm==='paypal'?'block':'none'};margin-top:16px;padding:14px;background:rgba(0,156,222,.07);border-radius:8px;font-size:.9rem;color:rgba(240,238,232,.7)">
+        Vous serez redirigé vers PayPal pour finaliser votre paiement en toute sécurité.
+      </div>
+      <div id="applepayInfo" style="display:${pm==='applepay'?'block':'none'};margin-top:16px;padding:14px;background:rgba(255,255,255,.05);border-radius:8px;font-size:.9rem;color:rgba(240,238,232,.7)">
+        Authentifiez le paiement via Face ID ou Touch ID sur votre appareil Apple.
+      </div>
+      <div id="klarnaInfo" style="display:${pm==='klarna'?'block':'none'};margin-top:16px;padding:14px;background:rgba(255,179,199,.07);border-radius:8px;font-size:.9rem;color:rgba(240,238,232,.7)">
+        Payez en <strong style="color:#FFB3C7">3× sans frais</strong>. Vous serez redirigé vers Klarna pour choisir votre calendrier de paiement.
+      </div>
+    </div>
+
+    <div class="checkout-cta">
+      <button type="button" class="btn-checkout-submit ${pmCfg[pm].ctaClass}" onclick="submitPayment()">
+        ${pmCfg[pm].icon} ${pmCfg[pm].label}
+      </button>
+      <button type="button" class="btn-back-cart" onclick="goToStep(1)">← Retour à la livraison</button>
+    </div>`;
+}
+
+function renderStepConfirmation(){
+  const o = coLastOrder;
+  if(!o) return `<div style="text-align:center;padding:80px;opacity:.4">Aucune commande à afficher.</div>`;
+
+  const rarityColors={'Commune':'#888','Peu commune':'#4fc3f7','Rare':'#f5c842','Ultra Rare':'#b44fff','Secret Rare':'#ff6b35'};
+  const pmLabels={stripe:'Carte bancaire (Stripe)',paypal:'PayPal',applepay:'Apple Pay',klarna:'Klarna — Payer en 3×'};
+  const pmIcons={stripe:'💳',paypal:'🔵',applepay:'🍎',klarna:'🌸'};
+
+  // Estimated delivery date
+  const eta = new Date();
+  eta.setDate(eta.getDate() + o.estimatedDays + Math.floor(Math.random()*2));
+  const etaStr = eta.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+
+  // Timeline steps
+  const tlSteps = [
+    {icon:'✅',label:'Confirmée',date:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'}),state:'done'},
+    {icon:'📦',label:'En préparation',date:'Aujourd\'hui',state:'active'},
+    {icon:'🚚',label:'Expédiée',date:o.shippingMethod?.name?.includes('24h')?'Demain':'Sous 24–48h',state:''},
+    {icon:'📬',label:'Livrée',date:etaStr,state:''},
+  ];
+
+  return `<div class="confirm-page">
+
+    <!-- Hero -->
+    <div class="confirm-hero">
+      <div class="confirm-burst">
+        <div class="confirm-burst-circle">🎉</div>
+        <div class="confirm-burst-ring"></div>
+        <div class="confirm-burst-ring2"></div>
+      </div>
+      <div class="confirm-title">Commande confirmée !</div>
+      <p class="confirm-subtitle">Merci pour votre achat. Un e-mail de confirmation a été envoyé à <strong>${o.shipping.email||'votre adresse'}</strong>.</p>
+      <div class="confirm-order-badge">
+        🧾 Commande&nbsp;<strong>${o.num}</strong>&nbsp;·&nbsp;${o.date}
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="confirm-timeline">
+      ${tlSteps.map(s=>`
+        <div class="confirm-tl-step ${s.state}">
+          <div class="confirm-tl-dot">${s.icon}</div>
+          <div class="confirm-tl-label">${s.label}</div>
+          <div class="confirm-tl-date">${s.date}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Body -->
+    <div class="confirm-body">
+
+      <!-- Left: items + totaux -->
+      <div>
+        <div class="confirm-section">
+          <div class="confirm-section-title">🃏 Cartes commandées (${o.items.length})</div>
+          <div class="confirm-items">
+            ${o.items.map(({product:p, qty})=>`
+              <div class="confirm-item">
+                <img src="${p.img}" alt="${p.name}" class="confirm-item-img"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="confirm-item-emoji" style="display:none">${p.emoji}</div>
+                <div class="confirm-item-info">
+                  <div class="confirm-item-name">${p.name}</div>
+                  <div class="confirm-item-meta">
+                    <span class="confirm-item-rarity" style="background:${rarityColors[p.rarity]||'#888'}22;border:1px solid ${rarityColors[p.rarity]||'#888'}44;color:${rarityColors[p.rarity]||'#888'}">${p.rarity}</span>
+                    <span>${p.condition}</span>
+                    <span>${p.extension}</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="confirm-item-subtotal">${formatPrice(p.price*qty)}</div>
+                  <div class="confirm-item-qty">Qté&nbsp;${qty} × ${formatPrice(p.price)}</div>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div class="confirm-totals">
+            <div class="confirm-total-line"><span>Sous-total</span><span>${formatPrice(o.subtotal)}</span></div>
+            <div class="confirm-total-line"><span>Livraison — ${o.shippingMethod?.name||'Standard'}</span><span>${o.shippingCost===0?'Gratuite':formatPrice(o.shippingCost)}</span></div>
+            ${o.discount>0?`<div class="confirm-total-line discount"><span>Réduction (${o.promoCode})</span><span>−${formatPrice(o.discount)}</span></div>`:''}
+            <div class="confirm-total-line main"><span>Total payé</span><span>${formatPrice(o.total)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: sidebar -->
+      <div>
+        <div class="confirm-info-card">
+          <div class="confirm-info-label">📍 Adresse de livraison</div>
+          <div class="confirm-info-body">
+            <strong>${o.shipping.first} ${o.shipping.last}</strong><br>
+            ${o.shipping.addr}${o.shipping.addr2?' — '+o.shipping.addr2:''}<br>
+            ${o.shipping.zip} ${o.shipping.city}<br>
+            ${o.shipping.country}
+          </div>
+          <div class="confirm-eta" style="margin-top:12px">
+            <span style="font-size:1.2rem;flex-shrink:0">${o.shippingMethod?.name?.includes('24h')?'⚡':'🚚'}</span>
+            <div><strong>${o.shippingMethod?.name}</strong><br>Livraison estimée le <strong>${etaStr}</strong></div>
+          </div>
+        </div>
+
+        <div class="confirm-info-card">
+          <div class="confirm-info-label">💳 Paiement</div>
+          <div>
+            <div class="confirm-pm-badge confirm-pm-${o.payment}">
+              ${pmIcons[o.payment]||'💳'} ${pmLabels[o.payment]||o.payment}
+            </div>
+          </div>
+          <div class="confirm-info-body" style="margin-top:10px;font-size:.8rem;opacity:.6">
+            Paiement sécurisé SSL 256-bit · 3D Secure
+          </div>
+        </div>
+
+        <div class="confirm-info-card">
+          <div class="confirm-info-label">🔧 Besoin d'aide ?</div>
+          <div class="confirm-info-body" style="font-size:.85rem">
+            Notre équipe est disponible 7j/7.<br>
+            Référence à communiquer :<br>
+            <strong style="color:var(--gold);font-family:'Cinzel',serif;letter-spacing:1px">${o.num}</strong>
+          </div>
+          <div class="confirm-actions">
+            <button class="btn-primary" onclick="navigate('home')" style="margin-top:8px">Continuer mes achats</button>
+            ${currentUser?`<button class="btn-secondary" onclick="navigate('account');setAccountTab('orders')" style="padding:10px 20px;font-size:.72rem">Voir mes commandes</button>`:''}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+function selectShipping(id, price){
+  coShippingMethod = id;
+  coShippingCost = price;
+  document.querySelectorAll('.shipping-option').forEach(el=>{
+    el.classList.toggle('selected', el.querySelector('input')?.value===id);
+  });
+  renderCheckoutSummary();
+}
+
+function selectCoPayment(method){
+  coPaymentMethod = method;
+  document.querySelectorAll('.checkout-payment-methods .pm-row').forEach(b=>b.classList.remove('selected'));
+  document.querySelector(`.checkout-payment-methods .pm-row[data-method="${method}"]`)?.classList.add('selected');
+  document.getElementById('cardFields').classList.toggle('visible', method==='stripe');
+  ['paypal','applepay','klarna'].forEach(id=>{
+    const el=document.getElementById(id+'Info');
+    if(el) el.style.display=method===id?'block':'none';
+  });
+  // update CTA
+  const pmCfg={stripe:{label:'Payer par carte',ctaClass:'stripe-cta',icon:'💳'},paypal:{label:'Payer avec PayPal',ctaClass:'paypal-cta',icon:'🔵'},applepay:{label:'Apple Pay',ctaClass:'applepay-cta',icon:'🍎'},klarna:{label:'Klarna — Payer en 3×',ctaClass:'klarna-cta',icon:'🌸'}};
+  const btn = document.querySelector('#checkoutFormArea .btn-checkout-submit');
+  if(btn){const c=pmCfg[method];btn.className='btn-checkout-submit '+c.ctaClass;btn.innerHTML=`${c.icon} ${c.label}`;}
+}
+
+function goToStep(n){
+  coStep=n;
+  renderCheckoutSteps();
+  renderCheckoutSummary();
+  renderCheckoutStep();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function submitShipping(e){
+  e.preventDefault();
+  const fields = [{id:'coFirst',err:'errFirst'},{id:'coLast',err:'errLast'},{id:'coEmail',err:'errEmail'},{id:'coAddress',err:'errAddress'},{id:'coZip',err:'errZip'},{id:'coCity',err:'errCity'}];
+  let ok = true;
+  fields.forEach(f=>{
+    const el=document.getElementById(f.id);
+    const err=document.getElementById(f.err);
+    if(el&&!el.value.trim()){
+      el.classList.add('err');
+      if(err) err.textContent='Ce champ est requis';
+      ok=false;
+    } else {
+      el?.classList.remove('err');
+      if(err) err.textContent='';
+    }
+  });
+  if(!ok) return;
+  // Capture values BEFORE goToStep rewrites the DOM
+  coShippingData = {
+    first:   document.getElementById('coFirst')?.value.trim()   || '',
+    last:    document.getElementById('coLast')?.value.trim()    || '',
+    email:   document.getElementById('coEmail')?.value.trim()   || '',
+    addr:    document.getElementById('coAddress')?.value.trim() || '',
+    addr2:   document.getElementById('coAddress2')?.value.trim()|| '',
+    zip:     document.getElementById('coZip')?.value.trim()     || '',
+    city:    document.getElementById('coCity')?.value.trim()    || '',
+    country: document.getElementById('coCountry')?.value        || 'FR',
+  };
+  goToStep(2);
+}
+
+function submitPayment(){
+  if(coPaymentMethod==='stripe'){
+    const num=document.getElementById('cardNum')?.value.replace(/\s/g,'');
+    const exp=document.getElementById('cardExp')?.value;
+    const cvv=document.getElementById('cardCvv')?.value;
+    const name=document.getElementById('cardName')?.value;
+    if(!num||num.length<13){showToast('Numéro de carte invalide','⚠️');return;}
+    if(!exp||exp.length<5){showToast('Date d\'expiration invalide','⚠️');return;}
+    if(!cvv||cvv.length<3){showToast('CVV invalide','⚠️');return;}
+    if(!name){showToast('Nom sur la carte requis','⚠️');return;}
+  }
+  // Build snapshot BEFORE clearing cart
+  const subtotal = cart.reduce((s,c)=>{const p=PRODUCTS.find(x=>x.id===c.id);return s+(p?p.price*c.qty:0);},0);
+  const discount = currentPromo?(()=>{const pr=PROMO_CODES[currentPromo];return pr.type==='percent'?subtotal*pr.value/100:Math.min(pr.value,subtotal);})():0;
+  const orderNum = 'PV-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  const shippingOpt = SHIPPING_OPTIONS.find(o=>o.id===coShippingMethod);
+  coLastOrder = {
+    num: orderNum,
+    date: new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),
+    items: cart.map(c=>({...c, product: PRODUCTS.find(p=>p.id===c.id)})).filter(c=>c.product),
+    subtotal,
+    discount,
+    shippingCost: coShippingCost,
+    shippingMethod: shippingOpt,
+    total: Math.max(0, subtotal + coShippingCost - discount),
+    shipping: {...coShippingData},
+    payment: coPaymentMethod,
+    promoCode: currentPromo,
+    estimatedDays: coShippingMethod==='chrono'?1:coShippingMethod==='express'?3:7,
+  };
+  // Save to order history
+  const orders = JSON.parse(localStorage.getItem('pokevault_orders')||'[]');
+  orders.unshift({id:orderNum,date:coLastOrder.date,status:'processing',items:coLastOrder.items.map(i=>({id:i.id})),total:coLastOrder.total});
+  localStorage.setItem('pokevault_orders',JSON.stringify(orders.slice(0,20)));
+  // Clear cart
+  cart=[];saveCart();updateCartCount();currentPromo=null;selectedPayment='stripe';
+  goToStep(3);
+}
+
+function formatCardNum(input){
+  let v=input.value.replace(/\D/g,'').slice(0,16);
+  input.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatCardExp(input){
+  let v=input.value.replace(/\D/g,'');
+  if(v.length>=2) v=v.slice(0,2)+' / '+v.slice(2,4);
+  input.value=v;
+}
+
+function checkout(){
+  cart=[];saveCart();updateCartCount();currentPromo=null;
+  document.getElementById('checkoutModal').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('checkoutModal').classList.remove('open');
+  navigate('home');
+}
+
+// ===== TOAST =====
+function showToast(name, emoji='✅'){
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className='toast';
+  toast.innerHTML=`<span class="toast-icon">${emoji}</span><div class="toast-msg"><div class="toast-title">Ajouté au panier</div><div>${name}</div></div>`;
+  container.appendChild(toast);
+  setTimeout(()=>{toast.classList.add('out');setTimeout(()=>toast.remove(),300);},3000);
+}
+
+// ===== HOLO CARD TILT =====
+function cardTilt(e, card){
+  const rect=card.getBoundingClientRect();
+  const x=(e.clientX-rect.left)/rect.width;
+  const y=(e.clientY-rect.top)/rect.height;
+  const rotX=(y-.5)*-16;
+  const rotY=(x-.5)*16;
+  card.style.transform=`perspective(600px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.04)`;
+  const shine=card.querySelector('.card-shine');
+  if(shine){shine.style.setProperty('--mx',x*100+'%');shine.style.setProperty('--my',y*100+'%')}
+}
+function cardTiltReset(card){
+  card.style.transform='';
+}
+
+// ===== PRODUCT HOLO =====
+function productHolo(e){
+  const display=document.getElementById('productDisplay');
+  const overlay=document.getElementById('productHoloOverlay');
+  const emoji=document.getElementById('productEmoji');
+  if(!display||!overlay) return;
+  const rect=display.getBoundingClientRect();
+  const x=((e.clientX-rect.left)/rect.width)*100;
+  const y=((e.clientY-rect.top)/rect.height)*100;
+  overlay.style.setProperty('--mx',x+'%');
+  overlay.style.setProperty('--my',y+'%');
+  if(emoji){
+    const rx=(y/100-.5)*-12;
+    const ry=(x/100-.5)*12;
+    emoji.style.transform=`perspective(400px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.05)`;
+  }
+}
+function productHoloReset(){
+  const overlay=document.getElementById('productHoloOverlay');
+  const emoji=document.getElementById('productEmoji');
+  if(overlay) overlay.style.removeProperty('--mx');
+  if(emoji) emoji.style.transform='';
+}
+
+// ===== HERO ANIMATIONS =====
+function initHero(){
+  // Lightning bolts — Zekrom side
+  const lw = document.getElementById('lightningWrap');
+  if(lw){
+    const bolts = [
+      {left:'18%', height:'55%', top:'15%', dur:4.5, delay:0,   skew:-6},
+      {left:'32%', height:'40%', top:'25%', dur:6,   delay:-1.8, skew:4},
+      {left:'8%',  height:'70%', top:'8%',  dur:5,   delay:-3.2, skew:-10},
+      {left:'25%', height:'30%', top:'40%', dur:7,   delay:-0.5, skew:8},
+      {left:'12%', height:'50%', top:'20%', dur:3.8, delay:-4.5, skew:-4},
+    ];
+    bolts.forEach(b=>{
+      const el=document.createElement('div');
+      el.className='bolt';
+      el.style.cssText=`left:${b.left};height:${b.height};top:${b.top};--dur:${b.dur}s;--delay:${-Math.abs(b.delay)}s;--skew:${b.skew}deg`;
+      lw.appendChild(el);
+    });
+  }
+  // Flames — Reshiram side
+  const fw = document.getElementById('flameWrap');
+  if(fw){
+    const flames = [
+      {right:'20%', width:60, height:90,  bottom:'30%', dur:2.8, delay:0,    colors:'rgba(255,100,0,.55),rgba(255,60,0,.3)'},
+      {right:'8%',  width:90, height:140, bottom:'20%', dur:3.5, delay:-.8,  colors:'rgba(255,140,0,.5),rgba(255,80,0,.25)'},
+      {right:'35%', width:40, height:65,  bottom:'40%', dur:2.2, delay:-1.6, colors:'rgba(255,80,0,.45),rgba(200,40,0,.2)'},
+      {right:'15%', width:55, height:100, bottom:'10%', dur:3.8, delay:-2.4, colors:'rgba(255,120,0,.5),rgba(255,60,0,.22)'},
+      {right:'28%', width:35, height:55,  bottom:'50%', dur:2.5, delay:-0.4, colors:'rgba(255,160,30,.4),rgba(255,100,0,.18)'},
+    ];
+    flames.forEach(f=>{
+      const el=document.createElement('div');
+      el.className='flame';
+      el.style.cssText=`right:${f.right};width:${f.width}px;height:${f.height}px;bottom:${f.bottom};--dur:${f.dur}s;--delay:${-Math.abs(f.delay)}s;background:radial-gradient(ellipse at bottom,${f.colors},transparent)`;
+      fw.appendChild(el);
+    });
+  }
+  // Parallax on scroll
+  window.addEventListener('scroll',()=>{
+    const hero=document.getElementById('hero');
+    if(hero&&document.getElementById('home').classList.contains('active')){
+      hero.style.transform=`translateY(${window.scrollY*.35}px)`;
+    }
+  });
+  // Header scroll state
+  window.addEventListener('scroll',()=>{
+    document.getElementById('header').classList.toggle('scrolled',window.scrollY>20);
+  });
+}
+
+// ===== NEWSLETTER =====
+function subscribeNewsletter(btn){
+  btn.textContent='✓';btn.style.background='#81c784';btn.style.color='#fff';
+  showToast('Newsletter', '📧');
+}
+
+// ===== UTILS =====
+function formatPrice(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function toggleMobileNav(){document.getElementById('mobileNav').classList.toggle('open')}
+
+// ===== USER DROPDOWN =====
+function toggleUserDropdown(e){
+  e.stopPropagation();
+  const wrap = document.querySelector('.user-btn-wrap');
+  if(wrap) wrap.classList.toggle('open');
+}
+function closeUserDropdown(){
+  const wrap = document.querySelector('.user-btn-wrap');
+  if(wrap) wrap.classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.user-btn-wrap')) closeUserDropdown();
+});
+
+// ===== AUTH STATE =====
+const ADMIN_EMAIL = 'admin@pokevault.com';
+const ADMIN_PASS  = 'PokéVault2024!';
+function isAdmin(){ return currentUser?.isAdmin === true; }
+
+let currentUser = JSON.parse(localStorage.getItem('pokevault_user')||'null');
+let orderHistory = JSON.parse(localStorage.getItem('pokevault_orders')||'[]');
+
+function initials(u){return ((u.firstName||'?')[0]+(u.lastName||'?')[0]).toUpperCase()}
+
+function renderHeaderAuth(){
+  const zone = document.getElementById('headerAuthZone');
+  const navLink = document.getElementById('navLoginLink');
+  if(!zone) return;
+  if(!currentUser){
+    if(navLink) navLink.style.display = '';
+    zone.innerHTML = '';
+  } else {
+    if(navLink) navLink.style.display = 'none';
+    zone.innerHTML = `
+      <div class="user-btn-wrap">
+        <div class="user-btn" title="${currentUser.firstName} ${currentUser.lastName}" onclick="toggleUserDropdown(event)">${initials(currentUser)}</div>
+        <div class="user-dropdown">
+          <div class="user-dropdown-name">${currentUser.firstName} ${currentUser.lastName}</div>
+          <div class="user-dropdown-email">${currentUser.email}</div>
+          ${isAdmin() ? `
+          <button class="user-dropdown-item" onclick="closeUserDropdown();navigate('admin')">⚙ Administration</button>
+          ` : `
+          <button class="user-dropdown-item" onclick="closeUserDropdown();navigate('account')">👤 Mon compte</button>
+          <button class="user-dropdown-item" onclick="closeUserDropdown();navigate('account');setAccountTab('orders')">📦 Mes commandes</button>
+          <button class="user-dropdown-item" onclick="closeUserDropdown();navigate('account');setAccountTab('wishlist')">❤️ Favoris</button>
+          `}
+          <button class="user-dropdown-item danger" onclick="closeUserDropdown();logout()">← Déconnexion</button>
+        </div>
+      </div>`;
+  }
+}
+
+function switchAuthTab(tab){
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('formLogin').classList.toggle('active', tab==='login');
+  document.getElementById('formRegister').classList.toggle('active', tab==='register');
+}
+
+function submitLogin(e){
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  clearAuthErrors();
+  if(!email){setAuthError('loginEmailErr','Adresse e-mail requise');return}
+  if(password.length < 6){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
+  // Compte admin hardcodé
+  if(email === ADMIN_EMAIL && password === ADMIN_PASS){
+    loginSuccess({firstName:'Admin',lastName:'PokeVault',email:ADMIN_EMAIL,isAdmin:true});
+    return;
+  }
+  if(email === ADMIN_EMAIL){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
+  const stored = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
+  const found = stored.find(u=>u.email===email);
+  if(!found){setAuthError('loginEmailErr','Aucun compte avec cet email');return}
+  if(found.password !== btoa(password)){setAuthError('loginPasswordErr','Mot de passe incorrect');return}
+  loginSuccess(found);
+}
+
+function submitRegister(e){
+  e.preventDefault();
+  const firstName = document.getElementById('regFirstName').value.trim();
+  const lastName = document.getElementById('regLastName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirm').value;
+  clearAuthErrors();
+  if(password.length < 8){setAuthError('regPasswordErr','8 caractères minimum');return}
+  if(password !== confirm){setAuthError('regConfirmErr','Les mots de passe ne correspondent pas');return}
+  if(email === ADMIN_EMAIL){setAuthError('regEmailErr','Cet email est réservé');return}
+  const stored = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
+  if(stored.find(u=>u.email===email)){setAuthError('regEmailErr','Cet email est déjà utilisé');return}
+  const user = {firstName,lastName,email,password:btoa(password),memberSince:new Date().toLocaleDateString('fr-FR',{year:'numeric',month:'long'})};
+  stored.push(user);
+  localStorage.setItem('pokevault_users', JSON.stringify(stored));
+  loginSuccess(user);
+  showToast('Bienvenue sur PokeVault !', '🎉');
+}
+
+function loginSuccess(user){
+  currentUser = user;
+  localStorage.setItem('pokevault_user', JSON.stringify(user));
+  renderHeaderAuth();
+  navigate('catalogue');
+  if(user.isAdmin){ showToast('Bienvenue, Admin !', '⚙'); }
+  else { showToast(`Bienvenue, ${user.firstName} !`, '✅'); }
+}
+
+function logout(){
+  currentUser = null;
+  localStorage.removeItem('pokevault_user');
+  renderHeaderAuth();
+  navigate('home');
+  showToast('Déconnexion réussie', '👋');
+}
+
+function setAuthError(id, msg){
+  const el = document.getElementById(id);
+  if(el){el.textContent=msg;}
+  const input = el?.previousElementSibling;
+  if(input?.classList.contains('auth-input')) input.classList.add('error');
+}
+function clearAuthErrors(){
+  document.querySelectorAll('.auth-error').forEach(e=>e.textContent='');
+  document.querySelectorAll('.auth-input').forEach(i=>i.classList.remove('error'));
+}
+
+function checkPasswordStrength(pwd){
+  const bar = document.getElementById('strengthBar');
+  const label = document.getElementById('strengthLabel');
+  if(!bar||!label) return;
+  let score=0;
+  if(pwd.length>=8) score++;
+  if(/[A-Z]/.test(pwd)) score++;
+  if(/[0-9]/.test(pwd)) score++;
+  if(/[^A-Za-z0-9]/.test(pwd)) score++;
+  const levels=[
+    {w:'0%',c:'',t:''},
+    {w:'25%',c:'var(--red)',t:'Faible'},
+    {w:'50%',c:'#ff9800',t:'Moyen'},
+    {w:'75%',c:'var(--gold)',t:'Bon'},
+    {w:'100%',c:'#81c784',t:'Excellent'},
+  ];
+  const l=levels[score]||levels[0];
+  bar.style.width=l.w; bar.style.background=l.c;
+  label.textContent=l.t; label.style.color=l.c;
+}
+
+function socialLogin(provider){
+  showToast(`Connexion via ${provider} — bientôt disponible`, 'ℹ️');
+}
+function showForgotToast(){
+  showToast('Lien de réinitialisation envoyé par e-mail', '📧');
+}
+
+// ===== ACCOUNT PAGE =====
+let activeAccountTab = 'profile';
+function setAccountTab(tab){activeAccountTab=tab;renderAccount()}
+
+function renderAccount(){
+  if(!currentUser){navigate('auth');return}
+  const el = document.getElementById('accountInner');
+  if(!el) return;
+  const tabs = [
+    {id:'profile',label:'Profil',icon:'👤'},
+    {id:'orders',label:'Commandes',icon:'📦'},
+    {id:'wishlist',label:'Favoris',icon:'❤️'},
+    {id:'settings',label:'Paramètres',icon:'⚙️'},
+  ];
+  el.innerHTML = `
+    <div class="account-header">
+      <div class="account-avatar">${initials(currentUser)}</div>
+      <div class="account-welcome">
+        <div class="account-welcome-name">${currentUser.firstName} ${currentUser.lastName}</div>
+        <div class="account-welcome-email">${currentUser.email}</div>
+        <div class="account-member-since">Membre depuis ${currentUser.memberSince||'2025'}</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">← Déconnexion</button>
+    </div>
+    <div class="account-tabs">
+      ${tabs.map(t=>`<button class="account-tab ${activeAccountTab===t.id?'active':''}" onclick="setAccountTab('${t.id}')">${t.icon} ${t.label}</button>`).join('')}
+    </div>
+    <div id="accountPanel">${renderAccountPanel()}</div>`;
+}
+
+function renderAccountPanel(){
+  if(activeAccountTab==='profile') return renderProfile();
+  if(activeAccountTab==='orders') return renderOrders();
+  if(activeAccountTab==='wishlist') return renderWishlist();
+  if(activeAccountTab==='settings') return renderSettings();
+  return '';
+}
+
+function renderProfile(){
+  return `
+    <div class="profile-grid">
+      <div class="profile-card">
+        <div class="profile-card-title">Informations personnelles</div>
+        <div class="auth-field profile-field">
+          <label class="auth-label">Prénom</label>
+          <input class="auth-input" id="profileFirst" value="${currentUser.firstName}">
+        </div>
+        <div class="auth-field profile-field">
+          <label class="auth-label">Nom</label>
+          <input class="auth-input" id="profileLast" value="${currentUser.lastName}">
+        </div>
+        <div class="auth-field profile-field">
+          <label class="auth-label">E-mail</label>
+          <input class="auth-input" id="profileEmail" value="${currentUser.email}">
+        </div>
+        <button class="btn-auth" style="margin-top:8px" onclick="saveProfile()">Enregistrer</button>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">Sécurité</div>
+        <div class="auth-field profile-field">
+          <label class="auth-label">Nouveau mot de passe</label>
+          <input type="password" class="auth-input" id="profilePwd" placeholder="••••••••">
+        </div>
+        <div class="auth-field profile-field">
+          <label class="auth-label">Confirmer</label>
+          <input type="password" class="auth-input" id="profilePwdConfirm" placeholder="••••••••">
+        </div>
+        <button class="btn-auth" style="margin-top:8px" onclick="savePassword()">Changer le mot de passe</button>
+      </div>
+      <div class="profile-card full">
+        <div class="profile-card-title">Adresse de livraison</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="auth-field"><label class="auth-label">Rue</label><input class="auth-input" placeholder="12 rue de la Chance" value="${currentUser.address||''}"></div>
+          <div class="auth-field"><label class="auth-label">Code postal</label><input class="auth-input" placeholder="75001" value="${currentUser.zip||''}"></div>
+          <div class="auth-field"><label class="auth-label">Ville</label><input class="auth-input" placeholder="Paris" value="${currentUser.city||''}"></div>
+          <div class="auth-field"><label class="auth-label">Pays</label><input class="auth-input" placeholder="France" value="${currentUser.country||'France'}"></div>
+        </div>
+        <button class="btn-auth" style="margin-top:16px;max-width:200px" onclick="showToast('Adresse enregistrée','📍')">Enregistrer</button>
+      </div>
+    </div>`;
+}
+
+function renderOrders(){
+  const mockOrders = [
+    {id:'PV-2025-0042',date:'8 mars 2025',status:'delivered',items:[{id:1},{id:2}],total:339.98},
+    {id:'PV-2025-0031',date:'21 fév. 2025',status:'delivered',items:[{id:3},{id:12}],total:122.99},
+    {id:'PV-2025-0018',date:'5 fév. 2025',status:'delivered',items:[{id:6}],total:179.99},
+    ...(JSON.parse(localStorage.getItem('pokevault_orders')||'[]')).map((o)=>({...o,status:'delivered'})),
+  ].slice(0,6);
+  if(!mockOrders.length) return `<div style="text-align:center;padding:80px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Aucune commande pour l'instant</div>`;
+  return `<div class="orders-list">${mockOrders.map(o=>{
+    const items = o.items.map(it=>PRODUCTS.find(p=>p.id===it.id)).filter(Boolean);
+    return `<div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-id">${o.id}</div>
+          <div class="order-date">${o.date}</div>
+        </div>
+        <span class="order-status status-${o.status}">${o.status==='delivered'?'Livré':o.status==='shipped'?'Expédié':'En cours'}</span>
+      </div>
+      <div class="order-items">
+        ${items.map(p=>`
+          <img src="${p.img}" alt="${p.name}" class="order-item-thumb" onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=order-item-emoji>${p.emoji}</div>')">
+        `).join('')}
+      </div>
+      <div class="order-footer">
+        <span style="font-size:.85rem;color:var(--gray)">${items.map(p=>p.name).join(', ')}</span>
+        <span class="order-total">${formatPrice(o.total)}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderWishlist(){
+  const favIds = JSON.parse(localStorage.getItem('pokevault_wishlist')||'[1,6,15,20]');
+  const favs = PRODUCTS.filter(p=>favIds.includes(p.id));
+  if(!favs.length) return `<div style="text-align:center;padding:80px;opacity:.4;font-family:'Cinzel',serif;letter-spacing:2px">Votre liste de favoris est vide</div>`;
+  return `<div class="fav-grid">${favs.map(p=>renderCard(p)).join('')}</div>`;
+}
+
+function renderSettings(){
+  return `
+    <div class="profile-card" style="max-width:560px">
+      <div class="profile-card-title">Notifications</div>
+      ${[
+        ['Nouvelles cartes disponibles','notif_new',true],
+        ['Promotions et offres spéciales','notif_promo',true],
+        ['Statut de mes commandes','notif_orders',true],
+        ['Newsletter mensuelle','notif_newsletter',false],
+      ].map(([label,id,def])=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="font-size:.95rem">${label}</span>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+            <input type="checkbox" ${def?'checked':''} style="opacity:0;width:0;height:0" onchange="showToast('Préférence enregistrée','⚙️')">
+            <span style="position:absolute;inset:0;background:${def?'var(--gold2)':'#333'};border-radius:12px;transition:.3s"></span>
+            <span style="position:absolute;top:3px;left:${def?'23':'3'}px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.3s"></span>
+          </label>
+        </div>
+      `).join('')}
+      <div style="margin-top:24px">
+        <button class="btn-auth" onclick="showToast('Préférences sauvegardées','✅')">Sauvegarder</button>
+      </div>
+    </div>
+    <div class="profile-card" style="max-width:560px;margin-top:16px;border-color:rgba(230,57,70,.15)">
+      <div class="profile-card-title" style="color:var(--red)">Zone dangereuse</div>
+      <p style="font-size:.9rem;color:rgba(240,238,232,.5);margin-bottom:16px">La suppression de votre compte est définitive et irréversible.</p>
+      <button onclick="showToast('Contactez le support pour supprimer votre compte','ℹ️')" style="background:transparent;border:1px solid rgba(230,57,70,.4);color:rgba(230,57,70,.8);padding:10px 20px;border-radius:6px;font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;cursor:pointer">Supprimer mon compte</button>
+    </div>`;
+}
+
+function saveProfile(){
+  const first = document.getElementById('profileFirst')?.value.trim();
+  const last  = document.getElementById('profileLast')?.value.trim();
+  const email = document.getElementById('profileEmail')?.value.trim();
+  if(!first||!last||!email){showToast('Tous les champs sont requis','⚠️');return}
+  const oldEmail = currentUser.email;
+  currentUser = {...currentUser, firstName:first, lastName:last, email};
+  localStorage.setItem('pokevault_user', JSON.stringify(currentUser));
+  // Sync dans le store users
+  const users = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
+  const idx = users.findIndex(u=>u.email===oldEmail);
+  if(idx>=0){ users[idx]={...users[idx],firstName:first,lastName:last,email}; localStorage.setItem('pokevault_users',JSON.stringify(users)); }
+  renderHeaderAuth();
+  showToast('Profil mis à jour','✅');
+}
+
+function savePassword(){
+  const pwd = document.getElementById('profilePwd')?.value;
+  const confirm = document.getElementById('profilePwdConfirm')?.value;
+  if(!pwd||pwd.length<8){showToast('8 caractères minimum','⚠️');return}
+  if(pwd!==confirm){showToast('Les mots de passe ne correspondent pas','⚠️');return}
+  currentUser = {...currentUser, password:btoa(pwd)};
+  localStorage.setItem('pokevault_user', JSON.stringify(currentUser));
+  const users = JSON.parse(localStorage.getItem('pokevault_users')||'[]');
+  const idx = users.findIndex(u=>u.email===currentUser.email);
+  if(idx>=0){ users[idx]={...users[idx],password:btoa(pwd)}; localStorage.setItem('pokevault_users',JSON.stringify(users)); }
+  showToast('Mot de passe mis à jour','🔐');
+}
+
+// ===== GLOBAL SEARCH =====
+let searchFocusIndex = -1;
+
+function openSearch(){
+  const overlay = document.getElementById('searchOverlay');
+  overlay.classList.add('open');
+  const input = document.getElementById('globalSearchInput');
+  input.value = '';
+  searchFocusIndex = -1;
+  document.getElementById('searchResultsContainer').innerHTML = '';
+  setTimeout(()=>input.focus(), 50);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSearch(){
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  searchFocusIndex = -1;
+}
+
+function onOverlayClick(e){
+  if(e.target === document.getElementById('searchOverlay')) closeSearch();
+}
+
+function clearGlobalSearch(){
+  const input = document.getElementById('globalSearchInput');
+  input.value = '';
+  input.focus();
+  document.getElementById('searchResultsContainer').innerHTML = '';
+  searchFocusIndex = -1;
+}
+
+function liveSearch(){
+  const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+  const container = document.getElementById('searchResultsContainer');
+  searchFocusIndex = -1;
+
+  if(!query){
+    container.innerHTML = '';
+    return;
+  }
+
+  const results = PRODUCTS.filter(p =>
+    p.name.toLowerCase().includes(query) ||
+    p.type.toLowerCase().includes(query) ||
+    p.extension.toLowerCase().includes(query) ||
+    p.rarity.toLowerCase().includes(query)
+  );
+
+  if(!results.length){
+    container.innerHTML = `<div class="search-no-results">Aucune carte trouvée pour "<strong>${query}</strong>"</div>`;
+    return;
+  }
+
+  const rarityColors = {'Commune':'#888','Peu commune':'#4fc3f7','Rare':'#f5c842','Ultra Rare':'#b44fff','Secret Rare':'#ff6b35'};
+
+  container.innerHTML = `
+    <div class="search-results-header">${results.length} résultat${results.length>1?'s':''}</div>
+    <div class="search-results" id="searchResultsList">
+      ${results.map((p,i)=>`
+        <div class="search-result-item" data-id="${p.id}" onclick="selectSearchResult(${p.id})" onmouseenter="searchFocusIndex=${i};updateSearchFocus()">
+          <img src="${p.img}" alt="${p.name}" class="search-result-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <span class="search-result-emoji" style="display:none">${p.emoji}</span>
+          <div class="search-result-info">
+            <div class="search-result-name">${highlightMatch(p.name, query)}</div>
+            <div class="search-result-meta">
+              <span><span class="search-result-rarity-dot" style="background:${rarityColors[p.rarity]||'#888'}"></span>${p.rarity}</span>
+              <span>${p.type}</span>
+              <span>${p.extension}</span>
+              <span>${p.condition}</span>
+            </div>
+          </div>
+          <div class="search-result-price">${formatPrice(p.price)}</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function highlightMatch(text, query){
+  const idx = text.toLowerCase().indexOf(query);
+  if(idx === -1) return text;
+  return text.slice(0,idx) + `<mark style="background:rgba(245,200,66,.3);color:var(--gold);border-radius:2px">${text.slice(idx,idx+query.length)}</mark>` + text.slice(idx+query.length);
+}
+
+function selectSearchResult(id){
+  closeSearch();
+  navigate('product', id);
+}
+
+function searchKeyNav(e){
+  const list = document.getElementById('searchResultsList');
+  if(!list) return;
+  const items = list.querySelectorAll('.search-result-item');
+  if(!items.length) return;
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    searchFocusIndex = Math.min(searchFocusIndex+1, items.length-1);
+    updateSearchFocus();
+    items[searchFocusIndex]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    searchFocusIndex = Math.max(searchFocusIndex-1, 0);
+    updateSearchFocus();
+    items[searchFocusIndex]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'Enter'){
+    if(searchFocusIndex >= 0 && items[searchFocusIndex]){
+      items[searchFocusIndex].click();
+    }
+  } else if(e.key === 'Escape'){
+    closeSearch();
+  }
+}
+
+function updateSearchFocus(){
+  const list = document.getElementById('searchResultsList');
+  if(!list) return;
+  list.querySelectorAll('.search-result-item').forEach((el,i)=>{
+    el.classList.toggle('focused', i===searchFocusIndex);
+  });
+}
+
+// Ctrl+K shortcut
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='k'){
+    e.preventDefault();
+    openSearch();
+  }
+  if(e.key==='Escape' && document.getElementById('searchOverlay').classList.contains('open')){
+    closeSearch();
+  }
+});
+
+// ===== GUEST MODAL =====
+function showGuestModal(){
+  const m = document.getElementById('guestModal');
+  if(!m) return;
+  document.getElementById('guestEmail').value = '';
+  document.getElementById('guestEmailErr').textContent = '';
+  m.classList.add('open');
+  setTimeout(()=>document.getElementById('guestEmail').focus(), 300);
+}
+function closeGuestModal(){
+  document.getElementById('guestModal')?.classList.remove('open');
+}
+function claimNewsletterPromo(){
+  const email = document.getElementById('guestEmail').value.trim();
+  const err   = document.getElementById('guestEmailErr');
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    err.textContent = 'Adresse e-mail invalide';
+    return;
+  }
+  err.textContent = '';
+  currentPromo = 'NEWSLETTER5';
+  updateCartSummary();
+  const inp = document.getElementById('promoInput');
+  if(inp) inp.value = 'NEWSLETTER5';
+  const msg = document.getElementById('promoMsg');
+  if(msg){ msg.textContent = '🎁 Code −5% Newsletter appliqué !'; msg.className = 'promo-msg ok'; }
+  closeGuestModal();
+  showToast('Code −5% appliqué !', '🎁');
+  navigate('checkout');
+}
+function continueAsGuest(){
+  closeGuestModal();
+  navigate('checkout');
+}
+
+// ===== ADMIN =====
+const ADMIN_KEY = 'pokevault_products';
+
+function renderAdmin(){
+  const wrap = document.getElementById('adminTableWrap');
+  if(!wrap) return;
+  wrap.innerHTML = `
+    <table class="admin-table">
+      <thead><tr>
+        <th>IMAGE</th>
+        <th>#</th>
+        <th style="min-width:150px">NOM</th>
+        <th style="min-width:90px">PRIX (€)</th>
+        <th style="min-width:100px">STOCK</th>
+        <th style="min-width:280px">DESCRIPTION</th>
+        <th style="min-width:140px">PHOTO PC</th>
+        <th></th>
+      </tr></thead>
+      <tbody>
+        ${PRODUCTS.map(p=>`
+          <tr class="admin-row" data-id="${p.id}">
+            <td class="admin-cell">
+              <div class="admin-img-wrap">
+                <img class="adm-preview-img" src="${p.img}" alt=""
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                <span class="admin-emoji-fallback" style="display:none">${p.emoji}</span>
+              </div>
+            </td>
+            <td class="admin-cell"><span class="admin-id">${p.id}</span></td>
+            <td class="admin-cell">
+              <input class="admin-input adm-name" value="${p.name.replace(/"/g,'&quot;')}" placeholder="Nom">
+            </td>
+            <td class="admin-cell">
+              <input class="admin-input adm-price" type="number" step="0.01" min="0" value="${p.price}" style="width:90px">
+            </td>
+            <td class="admin-cell">
+              <input class="admin-input adm-stock" type="number" min="0" step="1" value="${p.stock}" style="width:80px" placeholder="0=rupture">
+              <div style="font-size:.72rem;margin-top:4px;color:${p.stock===0?'var(--red)':'rgba(129,199,132,.8)'}">
+                ${p.stock===0?'⛔ Rupture':'✓ Dispo'}
+              </div>
+            </td>
+            <td class="admin-cell">
+              <textarea class="admin-input admin-textarea adm-desc">${p.description}</textarea>
+            </td>
+            <td class="admin-cell">
+              <label class="admin-file-label">
+                📁 Choisir
+                <input class="admin-file-input" type="file" accept="image/*"
+                  onchange="adminHandleImage(${p.id},this)">
+              </label>
+            </td>
+            <td class="admin-cell">
+              <button class="admin-btn-save" onclick="adminSaveCard(${p.id})">Sauvegarder</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+function adminSaveCard(id){
+  const row = document.querySelector(`.admin-row[data-id="${id}"]`);
+  if(!row) return;
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+
+  const name  = row.querySelector('.adm-name')?.value.trim();
+  const price = parseFloat(row.querySelector('.adm-price')?.value);
+  const stock = parseInt(row.querySelector('.adm-stock')?.value, 10);
+  const desc  = row.querySelector('.adm-desc')?.value.trim();
+
+  if(name)       p.name        = name;
+  if(!isNaN(price) && price>=0) p.price = price;
+  if(!isNaN(stock) && stock>=0) p.stock = stock;
+  if(desc !== undefined)        p.description = desc;
+
+  const ov = JSON.parse(localStorage.getItem(ADMIN_KEY)||'{}');
+  ov[id] = { name:p.name, price:p.price, stock:p.stock, description:p.description, img:p.img };
+  try { localStorage.setItem(ADMIN_KEY, JSON.stringify(ov)); } catch(e){ showToast('Stockage plein !','⚠️'); return; }
+
+  // Update stock badge inline
+  const badge = row.querySelector('.admin-cell:nth-child(5) div');
+  if(badge){ badge.textContent = p.stock===0?'⛔ Rupture':'✓ Dispo'; badge.style.color=p.stock===0?'var(--red)':'rgba(129,199,132,.8)'; }
+
+  const btn = row.querySelector('.admin-btn-save');
+  if(btn){ btn.textContent='✓ Sauvegardé'; btn.classList.add('saved'); setTimeout(()=>{ btn.textContent='Sauvegarder'; btn.classList.remove('saved'); }, 2000); }
+}
+
+function adminHandleImage(id, input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result;
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p) return;
+    p.img = b64;
+    // update preview
+    const row = document.querySelector(`.admin-row[data-id="${id}"]`);
+    const img   = row?.querySelector('.adm-preview-img');
+    const emoji = row?.querySelector('.admin-emoji-fallback');
+    if(img){ img.src=b64; img.style.display='block'; if(emoji) emoji.style.display='none'; }
+    const lbl = input.closest('.admin-file-label');
+    if(lbl){ const t=document.createTextNode(' ✓ '+file.name.slice(0,16)); lbl.replaceChild(t, lbl.firstChild); }
+    // persist
+    const ov = JSON.parse(localStorage.getItem(ADMIN_KEY)||'{}');
+    if(!ov[id]) ov[id]={};
+    ov[id].img = b64;
+    try { localStorage.setItem(ADMIN_KEY, JSON.stringify(ov)); } catch(e){ showToast('Image trop lourde pour le stockage local','⚠️'); }
+  };
+  reader.readAsDataURL(file);
+}
+
+function adminSaveAll(){
+  document.querySelectorAll('.admin-row').forEach(row=>{
+    const id = parseInt(row.dataset.id);
+    if(id) adminSaveCard(id);
+  });
+  showToast('Toutes les cartes sauvegardées','💾');
+}
+
+function adminResetAll(){
+  if(!confirm('Réinitialiser toutes les modifications admin ? Les données d\'origine seront restaurées.')) return;
+  localStorage.removeItem(ADMIN_KEY);
+  location.reload();
+}
+
+// ===== INIT =====
+updateCartCount();
+renderFeatured();
+initHero();
+renderHeaderAuth();
+</script>
+</body>
+</html>
