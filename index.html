@@ -169,25 +169,30 @@ nav a.active::after{transform:scaleX(1)}
 @keyframes clashPulse{
   0%,100%{opacity:.5}50%{opacity:1}
 }
-/* Zekrom — left dragon */
+/* Reshiram — left (white/gold glow) */
 .hero-zekrom{
-  position:absolute;left:-2%;bottom:0;
-  width:min(340px,34vw);
+  position:absolute;left:1%;bottom:0;
+  height:min(500px,46vh);
+  width:auto;
   z-index:2;
-  filter:drop-shadow(0 0 24px rgba(0,130,255,.65)) drop-shadow(0 0 60px rgba(0,60,200,.35));
-  animation:floatL 5s ease-in-out infinite;
+  opacity:.82;
+  filter:drop-shadow(0 0 32px rgba(255,255,255,.75)) drop-shadow(0 0 80px rgba(245,200,66,.5)) drop-shadow(0 0 140px rgba(245,200,66,.25));
+  animation:floatL 5.5s ease-in-out infinite;
 }
-@keyframes floatL{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-22px) rotate(.5deg)}}
-/* Reshiram — right dragon */
+@keyframes floatL{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+/* Zekrom — right (electric blue glow) */
 .hero-reshiram{
-  position:absolute;right:-2%;bottom:0;
-  width:min(340px,34vw);
+  position:absolute;right:1%;bottom:0;
+  height:min(500px,46vh);
+  width:auto;
   z-index:2;
-  filter:drop-shadow(0 0 24px rgba(255,160,40,.65)) drop-shadow(0 0 60px rgba(220,80,0,.35));
-  animation:floatR 5s ease-in-out infinite;
+  opacity:.82;
+  filter:drop-shadow(0 0 32px rgba(0,180,255,.75)) drop-shadow(0 0 80px rgba(0,80,220,.5)) drop-shadow(0 0 140px rgba(0,80,220,.25));
+  animation:floatR 5.5s ease-in-out infinite;
   animation-delay:-2.5s;
 }
-@keyframes floatR{0%,100%{transform:translateY(0) rotate(1.5deg)}50%{transform:translateY(-22px) rotate(-.5deg)}}
+@keyframes floatR{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@media(max-width:768px){.hero-zekrom,.hero-reshiram{display:none}}
 /* Lightning bolts — Zekrom side */
 .lightning-wrap{position:absolute;left:0;top:0;width:42%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
 .bolt{
@@ -1830,116 +1835,15 @@ footer{
     <!-- Flames — Reshiram side -->
     <div class="flame-wrap" id="flameWrap"></div>
 
-    <!-- Zekrom (left — black electric dragon) -->
-    <svg class="hero-zekrom" viewBox="0 0 280 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="zBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#1e1e38"/>
-          <stop offset="100%" stop-color="#06060f"/>
-        </linearGradient>
-        <linearGradient id="zWing" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#0a0a1c"/>
-          <stop offset="100%" stop-color="#161628"/>
-        </linearGradient>
-      </defs>
-      <!-- Left wing (mechanical, swept back) -->
-      <path d="M85,190 L0,115 L12,65 L35,170 L70,210 Z" fill="url(#zWing)"/>
-      <path d="M85,190 L0,115 L20,150 L60,195 Z" fill="rgba(0,160,255,0.12)"/>
-      <line x1="4" y1="115" x2="68" y2="208" stroke="#0077bb" stroke-width="1" opacity="0.6"/>
-      <line x1="14" y1="68" x2="57" y2="195" stroke="#0077bb" stroke-width="1" opacity="0.35"/>
-      <!-- Body -->
-      <path d="M100,90 L180,90 L200,145 L210,235 L198,325 L178,375 L140,395 L110,375 L88,325 L76,235 L86,145 Z" fill="url(#zBody)"/>
-      <!-- Chest plate -->
-      <path d="M120,175 L160,175 L168,220 L140,232 L112,220 Z" fill="rgba(0,100,200,0.14)"/>
-      <!-- Head (angular) -->
-      <path d="M105,88 L140,38 L175,88 Z" fill="#10101e"/>
-      <!-- Crest/spike -->
-      <path d="M134,38 L140,12 L146,38 Z" fill="#1c1c32"/>
-      <!-- Eyes (electric blue) -->
-      <ellipse cx="122" cy="72" rx="9" ry="11" fill="#00ccff"/>
-      <ellipse cx="158" cy="72" rx="9" ry="11" fill="#00ccff"/>
-      <ellipse cx="122" cy="72" rx="4" ry="5" fill="#ffffff"/>
-      <ellipse cx="158" cy="72" rx="4" ry="5" fill="#ffffff"/>
-      <!-- Right arm (toward center) -->
-      <path d="M196,218 L255,182 L268,212 L242,232 L206,242 Z" fill="#0d0d1e"/>
-      <!-- Claws -->
-      <path d="M255,182 L278,166 L272,185" stroke="#0088cc" stroke-width="1.5" fill="none" opacity="0.8"/>
-      <path d="M263,195 L284,185 L278,204" stroke="#0088cc" stroke-width="1.5" fill="none" opacity="0.6"/>
-      <!-- Legs -->
-      <path d="M100,365 L82,395 L92,438 L116,442 L126,395 L118,365 Z" fill="#0b0b1c"/>
-      <path d="M158,365 L158,395 L170,442 L194,438 L198,395 L182,365 Z" fill="#0b0b1c"/>
-      <!-- Claw feet -->
-      <path d="M82,438 L68,456 M92,442 L84,460 M116,442 L112,462" stroke="#0088cc" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
-      <!-- Electric tail coil -->
-      <ellipse cx="140" cy="455" rx="32" ry="21" fill="none" stroke="#0e0e22" stroke-width="16"/>
-      <ellipse cx="140" cy="455" rx="32" ry="21" fill="none" stroke="#0066bb" stroke-width="2" opacity="0.9"/>
-      <ellipse cx="140" cy="468" rx="21" ry="13" fill="none" stroke="#0c0c1e" stroke-width="12"/>
-      <ellipse cx="140" cy="468" rx="21" ry="13" fill="none" stroke="#0066bb" stroke-width="2" opacity="0.7"/>
-      <!-- Electric spark bolts -->
-      <path d="M215,300 L228,292 L221,307 L236,299 L227,315" stroke="#00aaff" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <path d="M232,210 L242,204 L236,218 L248,212" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.7"/>
-      <path d="M240,260 L252,253 L245,268" stroke="#00aaff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
-    </svg>
+    <!-- Reshiram (left — white/gold dragon) -->
+    <img class="hero-zekrom"
+         src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/643.png"
+         alt="Reshiram">
 
-    <!-- Reshiram (right — white fire dragon) -->
-    <svg class="hero-reshiram" viewBox="0 0 280 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="rBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="100%" stop-color="#ccc8b0"/>
-        </linearGradient>
-        <linearGradient id="rWing" x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0%" stop-color="#f4f0e0"/>
-          <stop offset="100%" stop-color="#e8e4d0"/>
-        </linearGradient>
-      </defs>
-      <!-- Right wing (feathery, facing left/center) -->
-      <path d="M195,190 L280,115 L268,65 L245,170 L210,210 Z" fill="url(#rWing)"/>
-      <path d="M195,190 L280,115 L260,150 L220,195 Z" fill="rgba(255,180,80,0.18)"/>
-      <!-- Feather lines -->
-      <line x1="276" y1="115" x2="212" y2="208" stroke="#ffaa44" stroke-width="1" opacity="0.5"/>
-      <line x1="266" y1="68" x2="223" y2="195" stroke="#ffaa44" stroke-width="1" opacity="0.3"/>
-      <line x1="254" y1="90" x2="230" y2="192" stroke="#ffaa44" stroke-width="1" opacity="0.2"/>
-      <!-- Body -->
-      <path d="M100,90 L180,90 L200,145 L210,235 L198,325 L178,375 L140,395 L110,375 L88,325 L76,235 L86,145 Z" fill="url(#rBody)"/>
-      <!-- Chest fire marking -->
-      <path d="M126,168 L140,148 L154,168 L146,205 L134,205 Z" fill="rgba(255,90,0,0.18)"/>
-      <!-- Head (facing left) -->
-      <path d="M105,88 L140,38 L175,88 Z" fill="#f0ede0"/>
-      <!-- Beak (pointing left toward center) -->
-      <path d="M105,65 L60,58 L105,78 Z" fill="#e8e4d0"/>
-      <!-- Crown spikes -->
-      <path d="M128,38 L122,12 L134,38 Z" fill="#f0ede0"/>
-      <path d="M140,36 L140,8 L150,36 Z" fill="#f4f0e4"/>
-      <path d="M152,40 L158,16 L162,40 Z" fill="#eceae0"/>
-      <!-- Eyes (fire red, on left-facing head) -->
-      <ellipse cx="118" cy="72" rx="9" ry="11" fill="#ff3300"/>
-      <ellipse cx="156" cy="72" rx="9" ry="11" fill="#ff3300"/>
-      <ellipse cx="118" cy="72" rx="4" ry="5" fill="#ffcc00"/>
-      <ellipse cx="156" cy="72" rx="4" ry="5" fill="#ffcc00"/>
-      <!-- Left arm (toward center) -->
-      <path d="M84,218 L25,182 L12,212 L38,232 L74,242 Z" fill="#e8e4d4"/>
-      <!-- Claws -->
-      <path d="M25,182 L2,166 L8,185" stroke="#ffaa44" stroke-width="1.5" fill="none" opacity="0.8"/>
-      <path d="M17,195 L-4,185 L2,204" stroke="#ffaa44" stroke-width="1.5" fill="none" opacity="0.6"/>
-      <!-- Legs -->
-      <path d="M100,365 L82,395 L92,438 L116,442 L126,395 L118,365 Z" fill="#d8d4c0"/>
-      <path d="M158,365 L158,395 L170,442 L194,438 L198,395 L182,365 Z" fill="#d8d4c0"/>
-      <!-- Claw feet -->
-      <path d="M82,438 L68,456 M92,442 L84,460 M116,442 L112,462" stroke="#ffaa44" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
-      <!-- Turbine tail -->
-      <ellipse cx="140" cy="452" rx="30" ry="20" fill="none" stroke="#d8d4c0" stroke-width="16"/>
-      <ellipse cx="140" cy="452" rx="30" ry="20" fill="none" stroke="#ff8800" stroke-width="2" opacity="0.85"/>
-      <ellipse cx="140" cy="466" rx="19" ry="12" fill="none" stroke="#ccc8b8" stroke-width="12"/>
-      <ellipse cx="140" cy="466" rx="19" ry="12" fill="none" stroke="#ff6600" stroke-width="2" opacity="0.7"/>
-      <!-- Flame wisps from tail -->
-      <path d="M115,450 Q98,432 104,414 Q92,436 98,460" fill="rgba(255,100,0,0.5)"/>
-      <path d="M165,450 Q182,432 176,414 Q188,436 182,460" fill="rgba(255,80,0,0.45)"/>
-      <path d="M128,440 Q115,420 120,402 Q108,425 115,448" fill="rgba(255,140,0,0.35)"/>
-      <!-- Body flame wisps -->
-      <path d="M60,255 Q44,237 50,220 Q38,242 46,264" fill="rgba(255,110,0,0.38)"/>
-      <path d="M52,295 Q38,276 44,258 Q33,280 40,302" fill="rgba(255,90,0,0.3)"/>
-    </svg>
+    <!-- Zekrom (right — electric dragon) -->
+    <img class="hero-reshiram"
+         src="https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/644.png"
+         alt="Zekrom">
 
     <!-- Hero content (center, above dragons) -->
     <div class="hero-content">
