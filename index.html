@@ -193,38 +193,116 @@ nav a.active::after{transform:scaleX(1)}
 }
 @keyframes floatR{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
 @media(max-width:768px){.hero-zekrom,.hero-reshiram{display:none}}
-/* Lightning bolts — Zekrom side */
-.lightning-wrap{position:absolute;left:0;top:0;width:42%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
-.bolt{
-  position:absolute;top:0;height:100%;
-  width:1.5px;
-  background:linear-gradient(to bottom,transparent 0%,#60c8ff 20%,#0090ff 50%,#60c8ff 80%,transparent 100%);
-  filter:blur(.8px);
-  box-shadow:0 0 8px #00aaff,0 0 20px #0055ff;
-  opacity:0;
-  transform-origin:top;
-  animation:bolt var(--dur,5s) ease-in-out infinite var(--delay,0s);
+/* ── Fire aura — behind Reshiram (left) ─────────────────────────────── */
+.hero-fire-aura{
+  position:absolute;left:0;bottom:0;
+  width:44%;height:100%;
+  z-index:1;pointer-events:none;overflow:hidden;
 }
-@keyframes bolt{
-  0%,100%{opacity:0;transform:scaleY(0) skewX(var(--skew,0deg))}
-  4%{opacity:1;transform:scaleY(1) skewX(var(--skew,0deg))}
-  10%{opacity:0;transform:scaleY(1) skewX(var(--skew,0deg))}
-  55%{opacity:0}
-  59%{opacity:.6;transform:scaleY(1) skewX(var(--skew,0deg))}
-  64%{opacity:0;transform:scaleY(1) skewX(var(--skew,0deg))}
+.hero-fire-aura::before{
+  content:'';
+  position:absolute;left:-5%;bottom:-20%;
+  width:110%;height:90%;
+  background:radial-gradient(ellipse 68% 72% at 48% 82%,
+    rgba(255,220,80,.42) 0%,
+    rgba(255,150,30,.26) 32%,
+    rgba(255,80,0,.1) 60%,
+    transparent 82%);
+  filter:blur(28px);
+  animation:firePulse1 4s ease-in-out infinite;
 }
-/* Flames — Reshiram side */
-.flame-wrap{position:absolute;right:0;top:0;width:42%;height:100%;z-index:1;pointer-events:none;overflow:hidden}
-.flame{
+.hero-fire-aura::after{
+  content:'';
+  position:absolute;left:0;bottom:-10%;
+  width:90%;height:80%;
+  background:radial-gradient(ellipse 55% 65% at 55% 78%,
+    rgba(255,255,200,.22) 0%,
+    rgba(245,200,66,.14) 38%,
+    transparent 72%);
+  filter:blur(42px);
+  animation:firePulse2 6s ease-in-out infinite;
+  animation-delay:-2.2s;
+}
+@keyframes firePulse1{
+  0%,100%{opacity:.55;transform:scale(1) translateY(0)}
+  50%{opacity:.92;transform:scale(1.13) translateY(-10px)}
+}
+@keyframes firePulse2{
+  0%,100%{opacity:.3;transform:scale(1.04) translateY(0)}
+  50%{opacity:.62;transform:scale(.93) translateY(7px)}
+}
+
+/* ── Electric aura — behind Zekrom (right) ──────────────────────────── */
+.hero-elec-aura{
+  position:absolute;right:0;top:0;
+  width:44%;height:100%;
+  z-index:1;pointer-events:none;overflow:hidden;
+}
+.hero-elec-aura::before{
+  content:'';
+  position:absolute;right:-5%;bottom:-15%;
+  width:110%;height:90%;
+  background:radial-gradient(ellipse 65% 72% at 52% 80%,
+    rgba(0,170,255,.32) 0%,
+    rgba(0,80,220,.18) 42%,
+    transparent 78%);
+  filter:blur(32px);
+  animation:elecPulse1 3.2s ease-in-out infinite;
+}
+.hero-elec-aura::after{
+  content:'';
+  position:absolute;right:0;bottom:-5%;
+  width:80%;height:75%;
+  background:radial-gradient(ellipse 50% 60% at 48% 72%,
+    rgba(120,210,255,.18) 0%,
+    rgba(0,100,200,.1) 50%,
+    transparent 80%);
+  filter:blur(48px);
+  animation:elecPulse2 5s ease-in-out infinite;
+  animation-delay:-1.6s;
+}
+@keyframes elecPulse1{
+  0%,100%{opacity:.45;transform:scale(1)}
+  50%{opacity:.88;transform:scale(1.1)}
+}
+@keyframes elecPulse2{
+  0%,100%{opacity:.28;transform:scale(1.06)}
+  50%{opacity:.55;transform:scale(.94)}
+}
+/* Lightning bolts — pure CSS */
+.elec-bolt{
   position:absolute;
-  border-radius:50% 50% 30% 30% / 60% 60% 40% 40%;
-  animation:flicker var(--dur,3s) ease-in-out infinite var(--delay,0s);
+  width:1px;
+  background:linear-gradient(to bottom,
+    transparent 0%,
+    rgba(120,220,255,.55) 20%,
+    rgba(0,160,255,.85) 50%,
+    rgba(120,220,255,.55) 80%,
+    transparent 100%);
+  filter:blur(.5px);
+  box-shadow:0 0 5px rgba(0,190,255,.7),0 0 14px rgba(0,80,220,.4);
+  opacity:0;
+  transform-origin:top center;
 }
-@keyframes flicker{
-  0%,100%{transform:scaleX(1) scaleY(1) rotate(-4deg);opacity:.75}
-  30%{transform:scaleX(.82) scaleY(1.18) rotate(4deg);opacity:1}
-  65%{transform:scaleX(1.12) scaleY(.88) rotate(-2deg);opacity:.8}
+/* 5 bolts, different positions/timings, right side */
+.eb1{right:30%;top:6%; height:52%;transform:skewX(-9deg); animation:elecFlash 5s   infinite 0s}
+.eb2{right:16%;top:18%;height:44%;transform:skewX(7deg);  animation:elecFlash 6.8s infinite -1.9s}
+.eb3{right:44%;top:3%; height:68%;transform:skewX(-13deg);animation:elecFlash 4.6s infinite -3.3s}
+.eb4{right:8%; top:12%;height:48%;transform:skewX(11deg); animation:elecFlash 7.2s infinite -0.7s}
+.eb5{right:55%;top:22%;height:38%;transform:skewX(-5deg); animation:elecFlash 5.5s infinite -4.2s}
+@keyframes elecFlash{
+  0%,100%{opacity:0}
+  3%{opacity:.95}
+  5%{opacity:.1}
+  7%{opacity:.8}
+  10%{opacity:0}
+  54%{opacity:0}
+  57%{opacity:.6}
+  59%{opacity:.05}
+  61%{opacity:.5}
+  64%{opacity:0}
 }
+@media(max-width:768px){.hero-fire-aura,.hero-elec-aura{display:none}}
 /* Hero content */
 .hero-content{position:relative;z-index:5;max-width:560px;margin:0 auto}
 .hero-eyebrow{
@@ -1829,11 +1907,17 @@ footer{
     <!-- Central clash beam -->
     <div class="hero-clash"></div>
 
-    <!-- Lightning bolts — Zekrom side -->
-    <div class="lightning-wrap" id="lightningWrap"></div>
+    <!-- Fire aura — behind Reshiram (left) -->
+    <div class="hero-fire-aura"></div>
 
-    <!-- Flames — Reshiram side -->
-    <div class="flame-wrap" id="flameWrap"></div>
+    <!-- Electric aura — behind Zekrom (right) -->
+    <div class="hero-elec-aura">
+      <div class="elec-bolt eb1"></div>
+      <div class="elec-bolt eb2"></div>
+      <div class="elec-bolt eb3"></div>
+      <div class="elec-bolt eb4"></div>
+      <div class="elec-bolt eb5"></div>
+    </div>
 
     <!-- Reshiram (left — white/gold dragon) -->
     <img class="hero-zekrom"
@@ -3266,40 +3350,6 @@ function productHoloReset(){
 
 // ===== HERO ANIMATIONS =====
 function initHero(){
-  // Lightning bolts — Zekrom side
-  const lw = document.getElementById('lightningWrap');
-  if(lw){
-    const bolts = [
-      {left:'18%', height:'55%', top:'15%', dur:4.5, delay:0,   skew:-6},
-      {left:'32%', height:'40%', top:'25%', dur:6,   delay:-1.8, skew:4},
-      {left:'8%',  height:'70%', top:'8%',  dur:5,   delay:-3.2, skew:-10},
-      {left:'25%', height:'30%', top:'40%', dur:7,   delay:-0.5, skew:8},
-      {left:'12%', height:'50%', top:'20%', dur:3.8, delay:-4.5, skew:-4},
-    ];
-    bolts.forEach(b=>{
-      const el=document.createElement('div');
-      el.className='bolt';
-      el.style.cssText=`left:${b.left};height:${b.height};top:${b.top};--dur:${b.dur}s;--delay:${-Math.abs(b.delay)}s;--skew:${b.skew}deg`;
-      lw.appendChild(el);
-    });
-  }
-  // Flames — Reshiram side
-  const fw = document.getElementById('flameWrap');
-  if(fw){
-    const flames = [
-      {right:'20%', width:60, height:90,  bottom:'30%', dur:2.8, delay:0,    colors:'rgba(255,100,0,.55),rgba(255,60,0,.3)'},
-      {right:'8%',  width:90, height:140, bottom:'20%', dur:3.5, delay:-.8,  colors:'rgba(255,140,0,.5),rgba(255,80,0,.25)'},
-      {right:'35%', width:40, height:65,  bottom:'40%', dur:2.2, delay:-1.6, colors:'rgba(255,80,0,.45),rgba(200,40,0,.2)'},
-      {right:'15%', width:55, height:100, bottom:'10%', dur:3.8, delay:-2.4, colors:'rgba(255,120,0,.5),rgba(255,60,0,.22)'},
-      {right:'28%', width:35, height:55,  bottom:'50%', dur:2.5, delay:-0.4, colors:'rgba(255,160,30,.4),rgba(255,100,0,.18)'},
-    ];
-    flames.forEach(f=>{
-      const el=document.createElement('div');
-      el.className='flame';
-      el.style.cssText=`right:${f.right};width:${f.width}px;height:${f.height}px;bottom:${f.bottom};--dur:${f.dur}s;--delay:${-Math.abs(f.delay)}s;background:radial-gradient(ellipse at bottom,${f.colors},transparent)`;
-      fw.appendChild(el);
-    });
-  }
   // Parallax on scroll
   window.addEventListener('scroll',()=>{
     const hero=document.getElementById('hero');
